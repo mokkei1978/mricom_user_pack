@@ -1,5 +1,6 @@
 #!/bin/bash
-# grib2 ファイルを netCDF に変換する
+#- wgrib2 で grib2 ファイルを netCDF に変換する
+#-   時間がかかる。大規模な変換には MXE/anl/format_conv/ を用いる。
 
 set -e
 
