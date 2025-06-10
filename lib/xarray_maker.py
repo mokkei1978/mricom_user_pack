@@ -22,6 +22,7 @@ def open_dataset( file, kind, **kwargs ):
     """
 
     methods = { 'mricom-history': mricom.open_history ,
+                'grads': mricom.open_grads ,
     }
     method_to_read = methods[kind]
 
