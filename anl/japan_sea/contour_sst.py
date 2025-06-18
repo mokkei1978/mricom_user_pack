@@ -39,6 +39,8 @@ DS = xarray_maker.open_dataset(conf["file"],conf['kind'])
 logger.debug(DS)
 
 da = DS["thetao"].sel(time=date).squeeze()
+if ndata == 2 :
+    da = da.isel(depth=0).squeeze()
 undef = conf.get('undef',0.)
 if undef != 0. :
     da = da.where( da != undef )
@@ -64,6 +66,6 @@ ax.set_title( conf["name"]+' '+date )
 ax.set_xlabel('')
 ax.set_ylabel('')
 
-plt.savefig('temp.png', bbox_inches='tight')
+plt.savefig('sst'+date+'.png', bbox_inches='tight')
 plt.show()
 #logger.info('OUTPUT: temp.png')
