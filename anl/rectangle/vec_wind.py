@@ -29,7 +29,7 @@ args = docopt(__doc__)
 date = args.get('YMD')
 logger.debug(date)
 
-DS = xarray_maker.open_dataset('../../../rectangle_data/wind_2gyre.01/wind_x.ctl','grads')
+DS = xarray_maker.open_dataset('../../link/omipj-data/mricom_user/rectangle/wind_x.ctl','grads')
 #- 風応力ファイルのパスを指定する
 logger.debug(DS)
 
@@ -55,6 +55,6 @@ ax.yaxis.set_major_formatter( LatitudeFormatter() )
 #ax.set_extent((127., 143., 33., 50.), crs=proj )
 ax.set_title( 'wind stress [dyn/cm^2]' )
 
-plt.show()
-#plt.savefig('temp.png', bbox_inches='tight')
-#logger.info('OUTPUT: temp.png')
+#plt.show()
+plt.savefig('temp.png', bbox_inches='tight')
+logger.info('OUTPUT: temp.png')

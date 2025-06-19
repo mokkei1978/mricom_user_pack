@@ -64,7 +64,7 @@ ax.set_title( conf["name"]+' Japan Sea' )
 ax.set_xlabel('')
 ax.set_ylabel('C')
 
+#plt.show()
 #plt.savefig('sst'+date+'.png', bbox_inches='tight')
 plt.savefig('temp.png', bbox_inches='tight')
-#plt.show()
 logger.info('OUTPUT: temp.png')

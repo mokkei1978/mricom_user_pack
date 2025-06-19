@@ -10,4 +10,7 @@ confs = [ { 'name':'HIMSST',
             'kind':'mricom-history',},
           { 'name':'JPNv2',
             'file':'../../link/data/JPN20-assim/hst_day-jpn/nc_t/2019/nc_t.2019*',
+            'kind':'mricom-history',},
+          { 'name':'test',
+            'file':'../../link/omipj-data/mricom_user/japan_sea/himsst.2025010*',
             'kind':'mricom-history',},]
