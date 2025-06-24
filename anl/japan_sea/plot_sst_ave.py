@@ -59,7 +59,7 @@ for year, group in grouped:
     dyear = group
     dyear["time"]=pd.to_datetime('2020-'+group.time.dt.strftime('%m-%d').values)
     dyear["thetao"].plot.line(xlim=[pd.Timestamp('2020-01-01'),pd.Timestamp('2020-12-31')],
-                              label=str(year), color=colors.get(str(year)))
+                              label=str(year), color=colors.get(str(year),'gray'))
 
 plt.legend()
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
