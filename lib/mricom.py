@@ -14,6 +14,9 @@ def open_history( file, **kwargs ):
 
     logger.debug(d)
 
+    if ( 'depth' in d.dims ):
+        d = d.rename({'depth':'lev'})
+
     return d
 
 def open_grads( file, **kwargs ):
