@@ -3,12 +3,13 @@
 set -e
 
 #year=$1
-depth_m=$1
+#depth_m=$1
 
-#for year in 2022 2024 ; do
+for varname in total short long sensible latent ; do
 for year in 2023 ; do
 for mon in `seq -w 1 12` ; do
-    python contour_t.py 2 ${year}-${mon} ${depth_m}
+    python contour_heatflux.py ${varname} ${year}-${mon}
+done
 done
 done
 
