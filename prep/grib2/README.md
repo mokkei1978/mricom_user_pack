@@ -7,7 +7,8 @@ grib2 ファイルを処理するツール
 内容
 --------
 
-* conv_grib2_to_netcdf.sh  - wgrib2 で grib2 ファイルを netCDF に変換する
+* conv_to_netcdf-jra3q.sh    - wgrib2 で grib2 ファイルを netCDF に変換する: JRA-3Q
+* conv_to_netcdf-movejpn.sh  -   : MOVE-JPN
 
 ### wgrib2 の調査
 
