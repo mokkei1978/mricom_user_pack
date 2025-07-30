@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""水温鉛直断面分布を描く
+""" 層水深の鉛直断面分布を描く
 
-Usage: contour_t_section.py FILE YMD
+Usage: contour_dept_section.py FILE YMD
 
 Arguments:
   FILE path of input file
@@ -34,8 +34,8 @@ DS = xr.open_mfdataset(file_in)
 logger.debug(DS)
 
 
-da = DS["thetao"].sel(time=date).sel(lon=30.).squeeze()
-da = da.isel(depth=slice(1,9))
+da = DS["dep"].sel(time=date).sel(lon=30.).squeeze()
+#da = da.isel(depth=slice(1,9))
 
 fig = plt.figure()
 ax = plt.subplot(1,1,1)

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-"""水温鉛直断面分布を描く
+"""水温分布を描く
 
-Usage: contour_t_section.py FILE YMD
+Usage: contour_t.py FILE YMD DEPTH
 
 Arguments:
   FILE path of input file
   YMD  date for plot(YYYY-MM-DD)
+  DEPTH depth for plot [m]
+
 """
 
 import sys
@@ -27,28 +29,29 @@ logger.info('START')
 args = docopt(__doc__)
 file_in = args.get('FILE')
 date = args.get('YMD')
+depth_m = args.get('DEPTH')
 
 logger.debug(date)
 
 DS = xr.open_mfdataset(file_in)
 logger.debug(DS)
 
-
-da = DS["thetao"].sel(time=date).sel(lon=30.).squeeze()
-da = da.isel(depth=slice(1,9))
+da = DS["thetao"].sel(time=date).sel(depth=depth_m).squeeze()
 
 fig = plt.figure()
-ax = plt.subplot(1,1,1)
-#ax.set_xticks( np.arange(0.,60.1,20.), crs=proj )
-#ax.set_yticks( np.arange(10.,60.1,10.), crs=proj )
-#ax.set_extent( (10., 60., 300., 500.,) )
+ax = plt.subplot(1,1,1,projection=ccrs.PlateCarree(central_longitude=0) )
+proj = ccrs.PlateCarree()
 
-cntr = da.plot.contour(levels=20)
+ax.set_xticks( np.arange(0.,60.1,20.), crs=proj )
+ax.set_yticks( np.arange(10.,60.1,10.), crs=proj )
+ax.set_extent((0., 60., 10., 60.), crs=proj )
 
+cntr = da.plot.contour(transform=proj,levels=20 )
 ax.clabel(cntr)
-ax.set_ylim( da.depth.max(), da.depth.min() )
-ax.xaxis.set_major_formatter( LatitudeFormatter() )
-#ax.set_title(da.long_name+'['+da.units+'] '+date)
+
+ax.xaxis.set_major_formatter( LongitudeFormatter(zero_direction_label=True) )
+ax.yaxis.set_major_formatter( LatitudeFormatter() )
+ax.set_title(da.standard_name+'['+da.units+'] '+date)
 
 plt.savefig('temp.png', bbox_inches='tight')
 
