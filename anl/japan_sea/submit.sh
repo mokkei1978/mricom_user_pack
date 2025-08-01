@@ -8,7 +8,7 @@ set -e
 for varname in total short long sensible latent ; do
 for year in 2023 ; do
 for mon in `seq -w 1 12` ; do
-    python contour_heatflux.py ${varname} ${year}-${mon}
+    python contour_heatflux_anom.py ${varname} ${year}-${mon}
 done
 done
 done
