@@ -32,13 +32,18 @@ logger.debug(DS)
 seagrid = { 'HIMSST':'him',
             'MGDSSTnorm':'mgd',
             'MGDSST':'mgd',
+            'JPNv2':'jpn',
             'MOVEJPN':'jpn', }
 dataname=seagrid[conf['name']]
-grid=xr.open_dataset( 'nc/japansea_north/seagrid_' + dataname + '.nc' )['sea_land']
+grid=xr.open_dataset( 'nc/japansea_all/seagrid_' + dataname + '.nc' )['sea_land']
 
 da = DS["thetao"]
 if ndata == 2 :
-    da = da.isel(depth=0).squeeze()
+    da = da.isel(lev=0).squeeze()
+    grid['lon']=da.lon
+    grid['lat']=da.lat
+if ndata == 5 :
+    da = da.isel(lev=0).squeeze()
 if ndata == 0 :
     da = da.where( da != 88.8 )
 undef = conf.get('undef',0.)

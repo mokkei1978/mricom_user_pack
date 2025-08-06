@@ -4,7 +4,7 @@
 Usage: make_seagrid.py NDATA
 
 Arguments:
-  NDATA date number (see data.py, 0/4)
+  NDATA date number (see data.py, 0/4/5)
 """
 
 import sys
@@ -36,16 +36,18 @@ DS = xarray_maker.open_dataset(conf["file"],conf['kind'])
 logger.debug(DS)
 
 da = DS['thetao'].isel(time=0).squeeze()
+if ndata == 5 :
+    da = da.isel(lev=0).squeeze()
 da = da*0.
 
 #- all
-#da.loc[{'lon':slice(128,140),'lat':slice(35,47)}] = 1.
-#da.loc[{'lon':slice(138,140),'lat':slice(35,36)}] = 0.
-#da.loc[{'lon':slice(140,142),'lat':slice(43,47)}] = 1.
+da.loc[{'lon':slice(128,140),'lat':slice(35,47)}] = 1.
+da.loc[{'lon':slice(138,140),'lat':slice(35,36)}] = 0.
+da.loc[{'lon':slice(140,142),'lat':slice(43,47)}] = 1.
 
 #- south
-da.loc[{'lon':slice(130,140),'lat':slice(35,40)}] = 1.
-da.loc[{'lon':slice(138,140),'lat':slice(35,36)}] = 0.
+#da.loc[{'lon':slice(130,140),'lat':slice(35,40)}] = 1.
+#da.loc[{'lon':slice(138,140),'lat':slice(35,36)}] = 0.
 
 #- north
 #da.loc[{'lon':slice(130,140),'lat':slice(40,45)}] = 1.
