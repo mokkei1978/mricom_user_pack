@@ -33,13 +33,17 @@ logger.debug(ndata)
 
 conf=confs[ndata]
 
-grouped1=xr.open_dataset('sst_ave.nc').groupby("time.year")
-grouped2=xr.open_dataset('sst_ave_him.nc').groupby("time.year")
-dm_norm=xr.open_dataset('sst_ave_norm.nc')
+#region_name='Japan Sea (South)'
+#ncdir='nc/japansea_south'
+region_name='Japan Sea (North)'
+ncdir='nc/japansea_north'
+grouped1=xr.open_dataset(ncdir+'/sst_ave_mgd.nc').groupby("time.year")
+grouped2=xr.open_dataset(ncdir+'/sst_ave_him.nc').groupby("time.year")
+dm_norm=xr.open_dataset(ncdir+'/sst_ave_norm.nc')
 
 
 labels={
-     '1982':'1982-2017',
+     '1982':'1982-2017(MGDSST)',
      '2022':'2018-2022',
      '2023':'2023',
      '2024':'2024',
@@ -88,7 +92,7 @@ for year, group in grouped2:
 
 plt.legend()
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-ax.set_title( conf["name"]+' anomaly (Japan Sea)' )
+ax.set_title( conf["name"]+' anomaly '+ region_name )
 ax.set_xlabel('')
 ax.set_ylabel('C')
 
