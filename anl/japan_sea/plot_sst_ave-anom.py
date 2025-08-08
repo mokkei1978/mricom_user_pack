@@ -35,10 +35,12 @@ conf=confs[ndata]
 
 #region_name='Japan Sea (South)'
 #ncdir='nc/japansea_south'
-region_name='Japan Sea (North)'
-ncdir='nc/japansea_north'
+#region_name='Japan Sea (North)'
+#ncdir='nc/japansea_north'
+region_name='Japan Sea (All)'
+ncdir='nc/japansea_all'
 grouped1=xr.open_dataset(ncdir+'/sst_ave_mgd.nc').groupby("time.year")
-grouped2=xr.open_dataset(ncdir+'/sst_ave_him.nc').groupby("time.year")
+grouped2=xr.open_dataset(ncdir+'/sst_ave_him.nc').sel(time=slice('2018-01-01','2025-07-31')).groupby("time.year")
 dm_norm=xr.open_dataset(ncdir+'/sst_ave_norm.nc')
 
 
@@ -71,8 +73,8 @@ for year, group in grouped1:
     dyear["time"]=pd.to_datetime('2020-'+group.time.dt.strftime('%m-%d').values)
     dyear = dyear - dm_norm
 
-#    dyear = dyear.resample(time='ME').mean()     #- monthly
-#    dyear["time"]=pd.to_datetime('2020-'+dyear.time.dt.strftime('%m-15').values)
+    dyear = dyear.resample(time='ME').mean()     #- monthly
+    dyear["time"]=pd.to_datetime('2020-'+dyear.time.dt.strftime('%m-15').values)
 
     dyear["thetao"].plot.line(xlim=[pd.Timestamp('2020-01-01'),pd.Timestamp('2020-12-31')],
                               ylim=[-6.,6.],
@@ -84,8 +86,8 @@ for year, group in grouped2:
     dyear = group
     dyear["time"]=pd.to_datetime('2020-'+group.time.dt.strftime('%m-%d').values)
     dyear = dyear - dm_norm
-#    dyear = dyear.resample(time='ME').mean()
-#    dyear["time"]=pd.to_datetime('2020-'+dyear.time.dt.strftime('%m-15').values)
+    dyear = dyear.resample(time='ME').mean()
+    dyear["time"]=pd.to_datetime('2020-'+dyear.time.dt.strftime('%m-15').values)
     dyear["thetao"].plot.line(xlim=[pd.Timestamp('2020-01-01'),pd.Timestamp('2020-12-31')],
                               label=labels.get(str(year),''),
                               color=colors.get(str(year),'lightskyblue'))
