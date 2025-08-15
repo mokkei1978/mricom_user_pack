@@ -22,4 +22,5 @@ confs = [ { 'name':'HIMSST',
           { 'name':'MOVEJPN',
             'file':'../../link/data/netCDF/JPN/202?/nc_t.202*',
 #            'file':'../../link/data/netCDF/JPN/2023/nc_t.20230101',
+#            'file':'../../link/data/netCDF/JPN/month/nc_t.202101',
             'kind':'mricom-history',},]
