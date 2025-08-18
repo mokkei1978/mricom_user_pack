@@ -36,9 +36,9 @@ DS = xarray_maker.open_dataset(conf['file'],conf['kind'])
 DSclim = xarray_maker.open_dataset(confs[3]['file'],confs[3]['kind'])
 logger.debug(DS)
 
-da = DS['thetao'].sel(time=date,lev=slice(1,200),lon=slice(131.,138.),lat=slice(35.,45.)).squeeze()
+da = DS['thetao'].sel(time=date,lev=slice(1,350),lon=slice(131.,138.),lat=slice(35.,45.)).squeeze()
 da = da.mean(dim='lon')
-daclim = DSclim['thetao'].sel(time='2008-'+date[5:7],lev=slice(1,200),lon=slice(131.,138.),lat=slice(35.,45.)).squeeze()
+daclim = DSclim['thetao'].sel(time='2008-'+date[5:7],lev=slice(1,350),lon=slice(131.,138.),lat=slice(35.,45.)).squeeze()
 daclim = daclim.mean(dim='lon')
 
 danm = da - daclim
