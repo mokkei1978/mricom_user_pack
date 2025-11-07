@@ -2,15 +2,16 @@
 
 set -e
 
-#year=$1
+year=$1
 #depth_m=$1
 
 #for varname in total short long sensible latent ; do
 #for year in 2021 ; do
-#for mon in `seq -w 1 12` ; do
-for day in `seq -w 1 30` ; do
+for mon in `seq -w 1 12` ; do
+#for day in `seq -w 1 30` ; do
 #    python contour_heatflux_anom.py ${varname} ${year}-${mon}
-    python contour_t_vel.py 202306${day}
+    python vec_uv.py ${year}${mon} 1
+    #python contour_t_vel.py 202306${day}
 done
 #done
 #done

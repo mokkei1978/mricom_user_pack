@@ -7,6 +7,7 @@ HIMSST, MGDSST気候値, MOVE-JPN に対応。
 * contour_heatflux.py              - 海面熱フラックス分布を描く
 * contour_heatflux_anom.py         - 海面熱フラックス偏差分布を描く
 * contour_s.py                     - ある深さの塩分水平分布を描く
+* contour_ssh.py                   - SSH分布を描く
 * contour_sst.py                   - SST分布を描く
 * contour_t_section.py             - 水温鉛直断面分布を描く
 * contour_t_vel.py                 - 水温分布と流速ベクトルを重ねて描く
@@ -18,4 +19,6 @@ HIMSST, MGDSST気候値, MOVE-JPN に対応。
 * make_sst_ave.py, plot_sst_ave.py - SST水平平均値の時系列を計算する, 描く
 * make_t_3d_ave.py                 - 全層で水温水平平均値の時系列を計算する
 * map_brank.py                     - 白地図を描く
+* plot_bathymetry.py               - モデルの水深図を描く(地図投影)
 * plot_heatflux_ave.py             - 海面熱フラックス領域平均値の時系列を描く
+* vec_uv.py                        - 流速分布を描く
