@@ -17,8 +17,10 @@ HIMSST, MGDSST気候値, MOVE-JPN に対応。
 * make_jra3q_clim.py               - JRA-3Qの平年値ファイルを作る
 * make_jra3q_seagrid.py            - 日本海のJRA-3Q 陸海グリッドファイルを作る
 * make_sst_ave.py, plot_sst_ave.py - SST水平平均値の時系列を計算する, 描く
+* make_strait_transport_netcdf.py  - MXEで計算した海峡通過流量を1つのnetCDFファイルにまとめる
 * make_t_3d_ave.py                 - 全層で水温水平平均値の時系列を計算する
 * map_brank.py                     - 白地図を描く
 * plot_bathymetry.py               - モデルの水深図を描く(地図投影)
 * plot_heatflux_ave.py             - 海面熱フラックス領域平均値の時系列を描く
+* plot_strait_transport.py         - 海峡通過流量の時系列を描く
 * vec_uv.py                        - 流速分布を描く
