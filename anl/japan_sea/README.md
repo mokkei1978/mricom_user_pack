@@ -4,6 +4,7 @@
 HIMSST, MGDSST気候値, MOVE-JPN に対応。
 
 * anim_sst.py                      - アニメーション用にSST分布を連番で描く
+* contour_heat_content.py          - 表層の貯熱量分布を描く
 * contour_heatflux.py              - 海面熱フラックス分布を描く
 * contour_heatflux_anom.py         - 海面熱フラックス偏差分布を描く
 * contour_s.py                     - ある深さの塩分水平分布を描く
