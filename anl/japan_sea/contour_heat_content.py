@@ -32,12 +32,12 @@ args = docopt(__doc__)
 date = args.get('YM')
 logger.debug(date)
 
-#DS = xr.open_mfdataset('../../link/data/MOVEJPN/anl_mon-jpn/heat_200m/202?/nc_t_integ_vert.2*')
-DS = xr.open_mfdataset('../../link/data/JPN20-assim/anl_mon-jpn/heat_200m/clim/nc_t_integ_vert.2*')
+#DS = xr.open_mfdataset('../../link/data/MOVEJPN/anl_mon-jpn/heat_50m/2023/nc_t_integ_vert.2*')
+DS = xr.open_mfdataset('../../link/data/JPN20-assim/anl_mon-jpn/heat_50m/clim/nc_t_integ_vert.2*')
 logger.debug(DS)
 
 da = DS["tz"].sel(time=date).squeeze()
-da = 1.e-4 * da
+da = 0.2e-3 * da  # 1/50m = 0.2e-3[1/cm]
 #undef = conf.get('undef',0.)
 #if undef != 0. :
 #    da = da.where( da != undef )
@@ -51,9 +51,9 @@ ax.set_yticks( np.arange(35.,50.1,5.), crs=proj )
 ax.set_extent( (127., 143., 33., 50.), crs=proj )
 
 
-clevs=np.arange(0.,40.1,5.)
+clevs=np.arange(0.,30.1,5.)
 da.plot.pcolormesh( transform=proj,
-                    cmap=cm.jet, levels=np.arange(0.,40.1,1.),
+                    cmap=cm.jet, levels=np.arange(-2.,33.1,1.),
                     cbar_kwargs={'ticks':clevs,'label':''} )
 
 cntr = da.plot.contour(transform=proj,levels=clevs, colors="black", linewidths=0.5)
@@ -62,11 +62,11 @@ ax.clabel(cntr)
 ax.coastlines()
 ax.xaxis.set_major_formatter( LongitudeFormatter(zero_direction_label=True) )
 ax.yaxis.set_major_formatter( LatitudeFormatter() )
-ax.set_title( ' Heat content (200m) [x100 C m] '+date )
+ax.set_title( ' Heat content Clim(50m) [x50 C m] '+date )
 ax.set_xlabel('')
 ax.set_ylabel('')
 
 #plt.show()
-plt.savefig('heat_200m_'+date+'.png', bbox_inches='tight')
+plt.savefig('heat_50m_clim_'+date+'.png', bbox_inches='tight')
 plt.savefig('temp.png', bbox_inches='tight')
 logger.info('OUTPUT: temp.png')

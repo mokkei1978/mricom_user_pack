@@ -34,13 +34,13 @@ year = date.split('-')[0]
 month = date.split('-')[1]
 logger.debug(date)
 
-DS = xr.open_dataset('../../link/data/MOVEJPN/anl_mon-jpn/heat_200m/'+year+'/nc_t_integ_vert.'+year+month)
-DSclim = xr.open_dataset('../../link/data/JPN20-assim/anl_mon-jpn/heat_200m/clim/nc_t_integ_vert.2008'+month)
+DS = xr.open_dataset('../../link/data/MOVEJPN/anl_mon-jpn/heat_50m/'+year+'/nc_t_integ_vert.'+year+month)
+DSclim = xr.open_dataset('../../link/data/JPN20-assim/anl_mon-jpn/heat_50m/clim/nc_t_integ_vert.2008'+month)
 logger.debug(DS)
 
 da = DS['tz'].sel(time=date).squeeze()
 daclim = DSclim['tz'].sel(time='2008-'+month).squeeze()
-da = 1.e-4 * ( da - daclim )
+da = 0.2e-3 * ( da - daclim )
 
 fig = plt.figure()
 ax = plt.subplot(1,1,1,projection=ccrs.PlateCarree(central_longitude=0) )
@@ -62,11 +62,11 @@ ax.clabel(cntr)
 ax.coastlines()
 ax.xaxis.set_major_formatter( LongitudeFormatter(zero_direction_label=True) )
 ax.yaxis.set_major_formatter( LatitudeFormatter() )
-ax.set_title( ' Heat content anomaly (200m) [x100 C m] '+date )
+ax.set_title( ' Heat content anomaly (50m) [x50 C m] '+date )
 ax.set_xlabel('')
 ax.set_ylabel('')
 
 #plt.show()
-plt.savefig('heat_200m_'+year+month+'.png', bbox_inches='tight')
+plt.savefig('heat_50m_anm_'+year+month+'.png', bbox_inches='tight')
 plt.savefig('temp.png', bbox_inches='tight')
 logger.info('OUTPUT: temp.png')
