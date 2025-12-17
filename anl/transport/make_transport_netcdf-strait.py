@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""MXEで計算した海峡通過流量を1つのnetCDFファイルにまとめる
+"""MXEで計算した流量を1つのnetCDFファイルにまとめる
 
-Usage: make_strait_transport_netcdf.py
+Usage: make_transport_netcdf-strait.py
 
 """
 

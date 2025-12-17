@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-"""水温鉛直断面分布を描く
+"""流速鉛直断面分布を描く
 
-Usage: contour_t_section.py NDATA YMD
+Usage: contour_v_section.py YMD
 
 Arguments:
-  NDATA date number (see data.py)
   YMD  date for plot(YYYY-MM-DD)
 """
 
@@ -20,35 +19,31 @@ import logging
 
 from lib import xarray_maker
 #from data import confs
-from data_month import confs
+#from data_month import confs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('START')
 
 args = docopt(__doc__)
-ndata = int( args.get('NDATA') )
 date = args.get('YMD')
 logger.debug(date)
 
-conf=confs[ndata]
-DS = xarray_maker.open_dataset(conf['file'],conf['kind'])
-DSclim = xarray_maker.open_dataset(confs[3]['file'],confs[3]['kind'])
+DS = xarray_maker.open_dataset('../../link/data/MOVEJPN/month/nc_v.2*','mricom-history')
+#DSclim = xarray_maker.open_dataset(confs[3]['file'],confs[3]['kind'])
 logger.debug(DS)
 
-#da = DS['thetao'].sel(time=date,lev=slice(1,200),lon=slice(131.,138.),lat=slice(35.,45.)).squeeze()
-#da = da.mean(dim='lon')
-da = DS['thetao'].sel(time=date,lat=40.,method='nearest').sel(lev=slice(1,200),lon=slice(131.,138.)).squeeze()
+da = DS['vo'].sel(time=date,lat=40.,method='nearest').sel(lev=slice(1,200),lon=slice(131.,138.)).squeeze()
 
 #for it in da['time']:
 #    danm.loc[{'time':it}] -= daclim.sel(time='2008-'+ str(it.time.dt.month.values) ).squeeze()
 #danm -= daclim.sel(time='2008-'+ str(da.time.dt.month.values) ).squeeze()
 
 fig, ax = plt.subplots()
-clevs=np.arange(0.,30.1,2.)
+clevs=np.arange(-40.,40.1,5.)
 #da.plot.pcolormesh( x='lat',y='lev',
 da.plot.pcolormesh( x='lon',y='lev',
-                    cmap=cm.jet, levels=np.arange(-2.,32.1,1.),
+                    cmap=cm.RdYlBu_r, levels=np.arange(-40.,40.1,1.),
                     cbar_kwargs={'ticks':clevs} )
 #cntr = da.plot.contour(x='lat',y='lev',levels=clevs, colors="black", linewidths=0.5)
 cntr = da.plot.contour(x='lon',y='lev',levels=clevs, colors="black", linewidths=0.5)
