@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""SST水平平均値と海洋熱波発生の時系列を描く
+"""海洋熱波発生日/年の時系列を描く
 
-Usage: plot_heatwave_multiyear.py
+Usage: plot_heatwave_days.py
 
 """
 
@@ -26,7 +26,7 @@ logger.info('START')
 #region_name='Japan Sea (South)'
 #ncdir='nc/japansea_south'
 region_name='Japan Sea (All)'
-ncdir='nc/japansea_all'
+ncdir='nc/japansea_all/detrend'
 da1=xr.open_dataset(ncdir+'/is_heatwave_ave_mgd.nc')['is_heatwave'].groupby('time.year').sum()
 da2=xr.open_dataset(ncdir+'/is_heatwave_ave_him.nc')['is_heatwave'].groupby('time.year').sum()
 da3=xr.open_dataset(ncdir+'/is_heatwave_ave_movejpn.nc')['is_heatwave'].groupby('time.year').sum()

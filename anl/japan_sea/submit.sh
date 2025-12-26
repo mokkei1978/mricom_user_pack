@@ -1,6 +1,14 @@
 #!/bin/bash
+#PBS -l select=1:ncpus=1
 
 set -e
+cd ${PBS_O_WORKDIR}
+
+. /home/sakamoto/venv/bin/activate
+
+python make_sst_trend.py
+
+exit 0
 
 year=$1
 #depth_m=$1

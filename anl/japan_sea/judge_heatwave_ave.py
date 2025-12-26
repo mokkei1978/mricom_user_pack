@@ -14,14 +14,18 @@ logger = logging.getLogger(__name__)
 logger.info('START')
 
 ncdir='nc/japansea_all'
-#sst=xr.open_dataset(ncdir+'/sst_ave_him.nc')['thetao']
-sst=xr.open_dataset(ncdir+'/sst_ave_jpnv2.nc')['thetao']
+cdata='him'
+#cdata='mgd'
+#cdata='jpnv2'
+#cdata='movejpn'
+sst=xr.open_dataset(ncdir+'/sst_ave_'+cdata+'.nc')['thetao']
 thres=xr.open_dataset(ncdir+'/heatwave_thres_ave.nc')['tos']
+trend=xr.open_dataset(ncdir+'/sst_trend_ave.nc')['trend']
 
 logger.debug(thres)
 
-d1= sst > thres
-#d1 = d1.sel(time=d1['time.year']==2023)
+d1= sst > ( thres + trend )  #- トレンドを考慮
+#d1= sst > thres
 
 d2 = d1.copy()
 im = d1.shape[0]
@@ -74,5 +78,6 @@ for i in range( 2, im-2 ):
         d3[i] = True
 
 d3.name='is_heatwave'
-d3.to_netcdf(path='./is_heatwave_ave.nc',mode='w')
-logger.info('OUTPUT: ./is_heatwave_ave.nc')
+fileo='./is_heatwave_ave_'+cdata+'.nc'
+d3.to_netcdf(path=fileo,mode='w')
+logger.info('OUTPUT: '+fileo)
