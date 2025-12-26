@@ -17,9 +17,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('START')
 
-subdir='north_japan_sea'
+subdir='japan_sea_all'
 ncdir='../../link/data/JPN20-assim/anl_mon-jpn/heat_50m/'+subdir+'/clim'
-daj=xr.open_mfdataset(ncdir+'/nc_heat_content.20*')['hc'].sel(depth=1).squeeze()
+daj=xr.open_mfdataset(ncdir+'/nc_heat_cont.20*')['hc'].sel(depth=1).squeeze()
 
 v1=daj.values * 1.e-6
 da = xr.DataArray(data=v1,dims=('time'),attrs={'units':'C m3'})

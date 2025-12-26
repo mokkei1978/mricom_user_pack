@@ -16,6 +16,7 @@ HIMSST, MGDSST気候値, MOVE-JPN に対応。
 * contour_t_yt.py                  - 水温の緯度・時間ホフメラー図を描く
 * contour_t_zt.py                  - 水温の深度・時間ホフメラー図を描く
 * contour_v_section.py             - 流速鉛直断面分布を描く
+* make_heatwave_thres_ave.py       - 海洋熱波しきい値水平平均値の時系列を計算する
 * make_jra3q_ave.py                - JRA-3Qデータの領域平均を計算する
 * make_jra3q_clim.py               - JRA-3Qの平年値ファイルを作る
 * make_jra3q_seagrid.py            - 日本海のJRA-3Q 陸海グリッドファイルを作る

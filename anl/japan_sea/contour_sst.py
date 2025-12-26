@@ -22,7 +22,8 @@ import logging
 
 #- local
 from lib import xarray_maker
-from data import confs
+#from data import confs
+from data_month import confs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
