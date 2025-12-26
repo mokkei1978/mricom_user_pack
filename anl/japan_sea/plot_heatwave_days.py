@@ -32,14 +32,14 @@ da2=xr.open_dataset(ncdir+'/is_heatwave_ave_him.nc')['is_heatwave'].groupby('tim
 da3=xr.open_dataset(ncdir+'/is_heatwave_ave_movejpn.nc')['is_heatwave'].groupby('time.year').sum()
 da4=xr.open_dataset(ncdir+'/is_heatwave_ave_jpnv2.nc')['is_heatwave'].groupby('time.year').sum()
 
-year=np.append(da1['year'].values,2024)
-d1=np.append(da1.values,0)
+year=da1['year'].values #np.append(da1['year'].values,2024)
+d1=da1 #np.append(da1.values,0)
 d2=np.append(np.zeros(36),da2.values[0:7])
 d3=np.append(np.zeros(26),da4.values[0:12])
 d3=np.append(d3,np.zeros(1))
 d3=np.append(d3,da3.values[1:5])
 
-df=pd.DataFrame({'year':year,'MGDSST(1982-2023)':d1,'HIMSST(2018-2024)':d2,'MOVE-JPN(2008-2019,2021-2024)':d3})
+df=pd.DataFrame({'year':year,'MGDSST(1982-2024)':d1,'HIMSST(2018-2024)':d2,'MOVE-JPN(2008-2019,2021-2024)':d3})
 
 fig, ax = plt.subplots()
 df.plot.bar(x='year')

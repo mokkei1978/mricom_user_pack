@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 logger.info('START')
 
 ncdir='nc/japansea_all'
-cdata='him'
-#cdata='mgd'
+#cdata='him'
+cdata='mgd'
 #cdata='jpnv2'
 #cdata='movejpn'
 sst=xr.open_dataset(ncdir+'/sst_ave_'+cdata+'.nc')['thetao']
