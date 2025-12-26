@@ -37,22 +37,22 @@ logger.debug(date)
 
 conf=confs[0]
 
-DS = xarray_maker.open_dataset(conf["file"],conf['kind'])
+DS = xarray_maker.open_dataset(conf["file"],conf['kind']).sel(time=date).squeeze()
+#DS = xr.open_mfdataset('../../link/data/jra3q/day/2023/nc_phy2m.202305').mean(dim='time')
 logger.debug(DS)
 
 if ( varname == 'short' ):
-    da = DS['DSWRF_surface'].sel(time=date).squeeze() - DS['USWRF_surface'].sel(time=date).squeeze()
+    da = DS['DSWRF_surface'] - DS['USWRF_surface']
 elif ( varname == 'long' ):
-    da = DS['DLWRF_surface'].sel(time=date).squeeze() - DS['ULWRF_surface'].sel(time=date).squeeze()
+    da = DS['DLWRF_surface'] - DS['ULWRF_surface']
 elif ( varname == 'latent' ):
-    da = - DS['LHTFL_surface'].sel(time=date).squeeze()
+    da = - DS['LHTFL_surface']
 elif ( varname == 'sensible' ):
-    da = - DS['SHTFL_surface'].sel(time=date).squeeze()
+    da = - DS['SHTFL_surface']
 elif ( varname == 'total' ):
-    da = DS['DSWRF_surface'].sel(time=date).squeeze() - DS['USWRF_surface'].sel(time=date).squeeze() \
-       + DS['DLWRF_surface'].sel(time=date).squeeze() - DS['ULWRF_surface'].sel(time=date).squeeze() \
-       - DS['LHTFL_surface'].sel(time=date).squeeze() \
-       - DS['SHTFL_surface'].sel(time=date).squeeze()
+    da = DS['DSWRF_surface'] - DS['USWRF_surface'] \
+       + DS['DLWRF_surface'] - DS['ULWRF_surface'] \
+       - DS['LHTFL_surface'] - DS['SHTFL_surface']
 
 fig = plt.figure()
 ax = plt.subplot(1,1,1,projection=ccrs.PlateCarree(central_longitude=0) )
