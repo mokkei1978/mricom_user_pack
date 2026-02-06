@@ -24,8 +24,8 @@ trend=xr.open_dataset(ncdir+'/sst_trend_ave.nc')['trend']
 
 logger.debug(thres)
 
-d1= sst > ( thres + trend )  #- トレンドを考慮
-#d1= sst > thres
+#d1= sst > ( thres + trend )  #- トレンドを考慮
+d1= sst > thres
 
 d2 = d1.copy()
 im = d1.shape[0]

@@ -39,21 +39,24 @@ conf=confs[ndata]
 #ncdir='nc/japansea_north'
 region_name='Japan Sea (All)'
 ncdir='nc/japansea_all'
-grouped1=xr.open_dataset(ncdir+'/sst_ave_mgd.nc').groupby("time.year")
-grouped2=xr.open_dataset(ncdir+'/sst_ave_him.nc').sel(time=slice('2018-01-01','2025-07-31')).groupby("time.year")
+ds1=xr.open_dataset(ncdir+'/sst_ave_mgd.nc')
+#ds1['thetao'] = ds1.thetao.rolling(time=31,center=True).mean()
+grouped1=ds1.groupby("time.year")
+ds2=xr.open_dataset(ncdir+'/sst_ave_him.nc').sel(time=slice('2018-01-01','2025-12-31'))
+#ds2['thetao'] = ds2.thetao.rolling(time=31,center=True).mean()
+grouped2=ds2.groupby("time.year")
 dm_norm=xr.open_dataset(ncdir+'/sst_ave_norm.nc')
 
-
 labels={
-     '1982':'1982-2017(MGDSST)',
+     '1982':'1982-2017(MGD)',
      '2022':'2018-2022',
      '2023':'2023',
      '2024':'2024',
      '2025':'2025',}
 colors={
-     '2023':'orange',
+     '2023':'purple',
      '2024':'red',
-     '2025':'purple',}
+     '2025':'orange',}
 #    '2018':(0.4,0.4,1.),
 #     '2019':(0.5,0.5,1.),
 #     '2020':(0.6,0.6,1.),
@@ -77,7 +80,7 @@ for year, group in grouped1:
     dyear["time"]=pd.to_datetime('2020-'+dyear.time.dt.strftime('%m-15').values)
 
     dyear["thetao"].plot.line(xlim=[pd.Timestamp('2020-01-01'),pd.Timestamp('2020-12-31')],
-                              ylim=[-6.,6.],
+                              ylim=[-4.2,4.2],
                               label=labels.get(str(year),''),
                               color=colors.get(str(year),'lightgray'), linewidth=0.5)
 
@@ -94,9 +97,13 @@ for year, group in grouped2:
 
 plt.legend()
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-ax.set_title( conf["name"]+' anomaly '+ region_name )
+ax.set_title( 'Monthly HIMSST anomaly (Japan Sea)' )
+#ax.set_title( conf["name"]+' anomaly (31d runmean) '+ region_name )
 ax.set_xlabel('')
-ax.set_ylabel('C')
+ax.set_ylabel('[C]',fontsize='large')
+ax.tick_params(axis='x', labelsize=12)
+ax.tick_params(axis='y', labelsize=12)
+plt.grid(axis='y')
 
 #plt.show()
 #plt.savefig('sst'+date+'.png', bbox_inches='tight')

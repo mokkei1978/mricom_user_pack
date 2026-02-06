@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""MXEで計算した貯熱量を1つのnetCDFファイルにまとめる
+"""MXEで計算した貯熱量を1つのnetCDFファイルにまとめる: 気候値
 
-Usage: make_heat_cont_netcdf.py
+Usage: make_heat_cont_netcdf-clim.py
 
 """
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.info('START')
 
 subdir='japan_sea_all'
-ncdir='../../link/data/JPN20-assim/anl_mon-jpn/heat_50m/'+subdir+'/clim'
+ncdir='../../link/data/JPN20-assim/anl_mon-jpn/heat_btm/'+subdir+'/clim'
 daj=xr.open_mfdataset(ncdir+'/nc_heat_cont.20*')['hc'].sel(depth=1).squeeze()
 
 v1=daj.values * 1.e-6

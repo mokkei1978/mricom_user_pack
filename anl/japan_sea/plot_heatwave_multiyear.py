@@ -30,7 +30,7 @@ date_first='2018-01-01'
 date_last='2024-12-31'
 da=xr.open_dataset(ncdir+'/sst_ave_him.nc')['thetao'].sel(time=slice(date_first,date_last))
 dh=xr.open_dataset(ncdir+'/is_heatwave_ave_him.nc')['is_heatwave'].sel(time=slice(date_first,date_last))
-dh2=xr.open_dataset(ncdir+'/is_heatwave_ave_him-detrend.nc')['is_heatwave'].sel(time=slice(date_first,date_last))
+dh2=xr.open_dataset(ncdir+'/detrend/is_heatwave_ave_him.nc')['is_heatwave'].sel(time=slice(date_first,date_last))
 
 dnorml=xr.open_dataset(ncdir+'/sst_ave_norm.nc')['thetao']
 dnormn=dnorml.drop_sel(time='2004-02-29').copy()
@@ -39,7 +39,10 @@ dnorm["time"]=pd.date_range(start=date_first,end=date_last)
 
 fig, ax = plt.subplots()
 
-da.plot.line(color='red', label='HIMSST')
+#da.plot.line(color='red', label='HIMSST')
+(da-dnorm).plot.line(ylim=[-4.2,4.2],color='black', label='HIMSST')
+plt.plot([],[],color='orange',label='heatwave')
+plt.plot([],[],color='red',label='heatwave (detrend)')
 
 is_now = False
 h1_first = []
@@ -54,7 +57,7 @@ for i in range(dh.shape[0]-1):
     is_now = not is_now
 
 for ifirst, ilast in zip( h1_first, h1_last ):
-    ax.axvspan(dh['time'].isel(time=ifirst).dt.strftime('%Y-%m-%d').values, dh['time'].isel(time=ilast).dt.strftime('%Y-%m-%d').values, color='yellow', alpha=0.4)
+    ax.axvspan(dh['time'].isel(time=ifirst).dt.strftime('%Y-%m-%d').values, dh['time'].isel(time=ilast).dt.strftime('%Y-%m-%d').values, color='orange', alpha=0.4)
 
 is_now = False
 h2_first = []
@@ -68,15 +71,19 @@ for i in range(dh2.shape[0]-1):
         h2_last.append(i)
     is_now = not is_now
 for ifirst, ilast in zip( h2_first, h2_last ):
-    ax.axvspan(dh2['time'].isel(time=ifirst).dt.strftime('%Y-%m-%d').values, dh2['time'].isel(time=ilast).dt.strftime('%Y-%m-%d').values, color='orange', alpha=0.4)
+    ax.axvspan(dh2['time'].isel(time=ifirst).dt.strftime('%Y-%m-%d').values, dh2['time'].isel(time=ilast).dt.strftime('%Y-%m-%d').values, color='red', alpha=0.4)
 
-dnorm.plot.line(color='gray',label='normal')
+#dnorm.plot.line(color='gray',label='normal')
 
 plt.legend()
-ax.set_title( 'SST w/ Heatwave '+region_name )
+#ax.set_title( 'SST w/ Heatwave '+region_name )
+ax.set_title( 'SST anomaly w/ Heatwave (Japan Sea)' )
 ax.set_xlabel('')
-ax.set_ylabel('C')
+ax.set_ylabel('[C]',fontsize='large')
 ax.set_xlim(pd.to_datetime('2022-01-01'),pd.to_datetime('2024-12-31'))
+ax.tick_params(axis='x', labelsize=12)
+ax.tick_params(axis='y', labelsize=12)
+plt.grid(axis='y')
 
 #plt.show()
 plt.savefig('temp.png', bbox_inches='tight')

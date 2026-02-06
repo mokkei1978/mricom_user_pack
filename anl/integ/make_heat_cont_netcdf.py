@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('START')
 
-subdir='heat_50m/japan_sea_all'
+subdir='heat_btm/japan_sea_all'
 ncdir='../../link/data/JPN20-assim/anl_mon-jpn/'+subdir+'/20*'
 daj=xr.open_mfdataset(ncdir+'/nc_heat_cont.20*')['hc'].sel(depth=1).squeeze()
 
