@@ -24,7 +24,7 @@ daj=xr.open_mfdataset(ncdir+'/nc_heat_cont.20*')['hc'].sel(depth=1).squeeze()
 nc2dir='../../link/data/MOVEJPN/anl_mon-jpn/'+subdir+'/20*'
 dam=xr.open_mfdataset(nc2dir+'/nc_heat_cont.20*')['hc'].sel(depth=1).squeeze()
 
-time=np.append(daj.time.values,pd.date_range(start='2020-01-01',freq='ME',periods=10))
+time=np.append(daj.time.values,pd.date_range(start='2020-01-01',freq='MS',periods=10))
 time=np.append(time,dam.time.values)
 
 dummy_data=np.zeros(10)

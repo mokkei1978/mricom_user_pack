@@ -31,37 +31,22 @@ logger.info('START')
 args = docopt(__doc__)
 varname = args.get('VARNAME')
 
-da=xr.open_dataset('nc/japansea_all/heatflux_ave_day.nc')[varname]
-
-grouped=da.groupby("time.year")
-
-labels={
-     '2022':'1948-2022',
-     '2023':'2023',
-     '2024':'2024',
-     '2025':'2025',}
-colors={
-     '2023':'orange',
-     '2024':'red',
-     '2025':'purple',}
-widths={
-     '2023':1.,
-     '2024':1.,}
-
+da=xr.open_dataset('nc/japansea_all/heatflux_ave_usui.nc')[varname]
+da2=xr.open_dataset('nc/japansea_all/heatflux_ave_month.nc')[varname]
+da2['time'] = da2.time + pd.to_timedelta(14,unit='D')
+                                          
 fig, ax = plt.subplots()
 
-for year, group in grouped:
-    dyear = group
-    dyear["time"]=pd.to_datetime('2020-'+group.time.dt.strftime('%m-15').values)
-    dyear.plot.line(xlim=[pd.Timestamp('2020-01-01'),pd.Timestamp('2020-12-31')],
-                    label=labels.get(str(year),''),
-                    color=colors.get(str(year),'gray'),linewidth=widths.get(str(year),0.5))
+da.plot.line()
+da2.plot.line()
 
 plt.legend()
 ax.set_title( 'Heat flux over Japan Sea: '+varname )
 ax.set_xlabel('')
 ax.set_ylabel('[W/m2]')
 
-plt.savefig('heatflux_ave-'+varname+'.png', bbox_inches='tight')
+ax.set_xlim(pd.to_datetime('2022-01-01'),pd.to_datetime('2024-12-31'))
+
+#plt.savefig('heatflux_ave-'+varname+'.png', bbox_inches='tight')
 plt.savefig('temp.png', bbox_inches='tight')
 logger.info('OUTPUT: temp.png')

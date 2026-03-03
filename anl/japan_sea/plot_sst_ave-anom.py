@@ -82,7 +82,7 @@ for year, group in grouped1:
     dyear["thetao"].plot.line(xlim=[pd.Timestamp('2020-01-01'),pd.Timestamp('2020-12-31')],
                               ylim=[-4.2,4.2],
                               label=labels.get(str(year),''),
-                              color=colors.get(str(year),'lightgray'), linewidth=0.5)
+                              color=colors.get(str(year),'gray'), linewidth=0.5)
 
 for year, group in grouped2:
     logger.debug(colors.get(str(year)))
@@ -97,6 +97,7 @@ for year, group in grouped2:
 
 plt.legend()
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+ax.xaxis.set_major_locator(mdates.MonthLocator(bymonthday=15))
 ax.set_title( 'Monthly HIMSST anomaly (Japan Sea)' )
 #ax.set_title( conf["name"]+' anomaly (31d runmean) '+ region_name )
 ax.set_xlabel('')

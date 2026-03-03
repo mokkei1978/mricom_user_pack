@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('START')
 
-conf=confs[1]
+conf=confs[3]
 
 DS = xarray_maker.open_dataset(conf["file"],conf['kind'])
 logger.debug(DS)
@@ -32,7 +32,7 @@ dtotal = DS['DSWRF_surface'] - DS['USWRF_surface'] \
        + DS['DLWRF_surface'] - DS['ULWRF_surface'] \
        - DS['LHTFL_surface'] - DS['SHTFL_surface']
 
-grid=xr.open_dataset('./seagrid_japansea.nc')['sea_land']
+grid=xr.open_dataset('nc/japansea_all/seagrid_jra3q.nc')['sea_land']
 
 d1=dshort.where(grid==1.).mean(dim=["longitude","latitude"])
 d2=dlong.where(grid==1.).mean(dim=["longitude","latitude"])

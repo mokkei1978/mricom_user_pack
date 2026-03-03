@@ -6,6 +6,9 @@ cd ${PBS_O_WORKDIR}
 
 . /home/sakamoto/venv/bin/activate
 
+#python make_jra3q_ave.py
+#exit 0
+
 year=2023
 #depth_m=$1
 
