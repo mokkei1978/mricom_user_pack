@@ -8,4 +8,7 @@ confs = [ { 'name':'test dummy',
             'kind':'mricom-history',},
           { 'name':'MOVEJPN',
             'file':'../../link/data/MOVEJPN/month/nc_ssh.202*',
-            'kind':'mricom-history',},]
+            'kind':'mricom-history',},
+          { 'name':'npzd-jpn.02',
+            'file':'../../link/data/npzd-jpn.02/hst_mon-jpn/nc_ssh/2009/nc_ssh.2009*',
+            'kind':'mricom-history',}, ]

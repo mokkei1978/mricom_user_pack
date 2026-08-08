@@ -19,11 +19,6 @@ import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import logging
 
-#- local
-from lib import xarray_maker
-from data import confs
-#from data_month import confs
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('START')
@@ -33,11 +28,12 @@ date = args.get('YM')
 logger.debug(date)
 
 #DS = xr.open_mfdataset('../../link/data/MOVEJPN/anl_mon-jpn/heat_50m/2023/nc_t_integ_vert.2*')
-DS = xr.open_mfdataset('../../link/data/JPN20-assim/anl_mon-jpn/heat_50m/clim/nc_t_integ_vert.2*')
+#DS = xr.open_mfdataset('../../link/data/JPN20-assim/anl_mon-jpn/heat_50m/clim/nc_t_integ_vert.2*')
+DS = xr.open_mfdataset('../../link/data/npzd-jpn.02/anl_day-jpn/heat_btm/2009/nc_t_integ_vert.20090101')
 logger.debug(DS)
 
 da = DS["tz"].sel(time=date).squeeze()
-da = 0.2e-3 * da  # 1/50m = 0.2e-3[1/cm]
+#da = 0.2e-3 * da  # 1/50m = 0.2e-3[1/cm]
 #undef = conf.get('undef',0.)
 #if undef != 0. :
 #    da = da.where( da != undef )
@@ -51,18 +47,20 @@ ax.set_yticks( np.arange(35.,50.1,5.), crs=proj )
 ax.set_extent( (127., 143., 33., 50.), crs=proj )
 
 
-clevs=np.arange(0.,30.1,5.)
+#clevs=np.arange(0.,30.1,5.)
 da.plot.pcolormesh( transform=proj,
-                    cmap=cm.jet, levels=np.arange(-2.,33.1,1.),
-                    cbar_kwargs={'ticks':clevs,'label':''} )
+#                    cmap=cm.jet, levels=np.arange(-2.,33.1,1.),
+                    cmap=cm.jet, levels=np.arange(0.,5.1e5,2.e4) )
+#                    cbar_kwargs={'ticks':clevs,'label':''} )
 
-cntr = da.plot.contour(transform=proj,levels=clevs, colors="black", linewidths=0.5)
-ax.clabel(cntr)
+#cntr = da.plot.contour(transform=proj,levels=clevs, colors="black", linewidths=0.5)
+#ax.clabel(cntr)
 
 ax.coastlines()
 ax.xaxis.set_major_formatter( LongitudeFormatter(zero_direction_label=True) )
 ax.yaxis.set_major_formatter( LatitudeFormatter() )
-ax.set_title( ' Heat content Clim(50m) [x50 C m] '+date )
+#ax.set_title( ' Heat content Clim(50m) [x50 C m] '+date )
+ax.set_title( ' Heat content (All depth) '+date )
 ax.set_xlabel('')
 ax.set_ylabel('')
 
