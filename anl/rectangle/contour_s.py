@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""水温分布を描く
+"""塩分分布を描く
 
-Usage: contour_t.py FILE YMD DEPTH EXPNAME
+Usage: contour_s.py FILE YMD DEPTH EXPNAME
 
 Arguments:
   FILE path of input file
@@ -38,7 +38,7 @@ logger.debug(date)
 DS = xr.open_mfdataset(file_in)
 logger.debug(DS)
 
-da = DS["thetao"].sel(time=date).sel(depth=depth_m).squeeze()
+da = DS["so"].sel(time=date).sel(depth=depth_m).squeeze()
 
 fig = plt.figure()
 ax = plt.subplot(1,1,1,projection=ccrs.PlateCarree(central_longitude=0) )
@@ -56,7 +56,7 @@ ax.clabel(cntr)
 
 ax.xaxis.set_major_formatter( LongitudeFormatter(zero_direction_label=True) )
 ax.yaxis.set_major_formatter( LatitudeFormatter() )
-ax.set_title(exp_name+' T['+da.units+'] '+date+' '+depth_m+'m')
+ax.set_title(exp_name+' S['+da.units+'] '+date+' '+depth_m+'m')
 ax.set_xlabel('')
 ax.set_ylabel('')
 

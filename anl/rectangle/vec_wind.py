@@ -29,7 +29,7 @@ args = docopt(__doc__)
 date = args.get('YMD')
 logger.debug(date)
 
-DS = xarray_maker.open_dataset('../../link/omipj-data/mricom_user/rectangle/wind_x.ctl','grads')
+DS = xarray_maker.open_dataset('../../link/data/rectangle/data/wind_2gyre.01/wind_x.ctl','grads')
 #- 風応力ファイルのパスを指定する
 logger.debug(DS)
 
@@ -39,6 +39,14 @@ tau_mag = np.sqrt( taux**2 + tauy**2 )
 lon_deg = DS["lon"].values
 lat_deg = DS["lat"].values
 
+intv = 5
+taux2 = taux[::intv,::intv]
+tauy2 = tauy[::intv,::intv]
+mag2 = tau_mag[::intv,::intv]
+taux2 = taux2 / mag2
+tauy2 = tauy2 / mag2
+
+
 fig = plt.figure()
 ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=0) )
 
@@ -46,7 +54,7 @@ proj = ccrs.PlateCarree()
 cntr = ax.contourf(lon_deg,lat_deg,tau_mag,transform=proj,cmap=cm.Oranges)
 fig.colorbar(cntr)
 
-Q = ax.quiver(lon_deg,lat_deg,taux,tauy,color='black',transform=proj)
+Q = ax.quiver(lon_deg[::intv],lat_deg[::intv],taux2,tauy2,color='black',transform=proj,pivot='mid')
 
 ax.set_xticks( np.arange(0.,60.1,10.), crs=proj )
 ax.set_yticks( np.arange(10.,60.1,10.), crs=proj )
