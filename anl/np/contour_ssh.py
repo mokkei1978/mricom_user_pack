@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-"""SSH分布を描く
+"""SSHの時間平均分布を描く
 
-Usage: contour_ssh.py FILE YMD EXPNAME
+Usage: contour_ssh.py [--in=FILE]
 
-Arguments:
-  FILE path of input file
-  YMD  date for plot(YYYY-MM-DD)
-  EXPNAME  name of experiment
-
+Options:
+  --in=FILE  input netCDF file [default: /data01/sakamoto/FORA_JPN/hst_mon-np/nc_ssh/clim.nc]
 """
 
 import sys
@@ -28,16 +25,19 @@ logger = logging.getLogger(__name__)
 logger.info('START')
 
 args = docopt(__doc__)
-file_in = args.get('FILE')
-date = args.get('YMD')
-exp_name = args.get('EXPNAME')
+file_in = args['--in']
 
-logger.debug(date)
-
-DS = xr.open_mfdataset(file_in)
+DS = xr.open_dataset(file_in)
 logger.debug(DS)
 
-da = DS["zos"].sel(time=date).squeeze()
+#- 12ヶ月の平年値をさらに時間平均する
+da = DS["zos"].mean(dim='time', keep_attrs=True)
+units = da.attrs.get('units', 'cm')
+
+#- 領域平均値(緯度に応じた面積重み付き)からの偏差
+weights = np.cos(np.deg2rad(da['lat']))
+da_mean = da.weighted(weights).mean(('lon', 'lat'))
+da = da - da_mean
 
 fig = plt.figure()
 ax = plt.subplot(1,1,1,projection=ccrs.PlateCarree(central_longitude=180.) )
@@ -46,11 +46,7 @@ proj = ccrs.PlateCarree()
 ax.set_xticks( np.arange(100.,281.,40.), crs=proj )
 ax.set_yticks( np.arange(-10.,61.,20.), crs=proj )
 ax.set_extent( (98., 285., -16., 64.), crs=proj )
-#ax.set_xticks( np.arange(0.,100.1,20.), crs=proj )
-#ax.set_yticks( np.arange(0.,60.1,10.), crs=proj )
-#ax.set_extent((0., 100., 0., 62.), crs=proj )
 
-#cntr = da.plot.contour(transform=proj,levels=20 )
 clevs=np.arange(-80.,80.1,20.)
 da.plot.pcolormesh( transform=proj, cmap='RdBu_r', vmin=-80., vmax=80.,
                     cbar_kwargs={'orientation':'horizontal','label':'',
@@ -62,7 +58,7 @@ ax.add_feature(cfeature.LAND, facecolor='gray')
 ax.coastlines()
 ax.xaxis.set_major_formatter( LongitudeFormatter(zero_direction_label=True) )
 ax.yaxis.set_major_formatter( LatitudeFormatter() )
-ax.set_title(exp_name+' SSH ['+da.units+'] '+date[:4])
+ax.set_title( 'FORA-JPN60 SSH 2001-2020 mean [' + units + ']' )
 ax.set_xlabel('')
 ax.set_ylabel('')
 
