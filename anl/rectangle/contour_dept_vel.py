@@ -35,8 +35,8 @@ exp_name = args.get('EXPNAME')
 
 logger.debug(date)
 
-diri='../../link/data/rectangle/result/kida12/hst_day-main'
-year='1901'
+diri='../../link/data/rectangle/result/l02-05/hst_day-main'
+year='1903'
 
 DS = xr.open_mfdataset(diri+'/nc_dept.'+year)
 logger.debug(DS)

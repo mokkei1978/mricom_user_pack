@@ -17,6 +17,10 @@ from matplotlib import cm
 from docopt import docopt
 import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 args = docopt(__doc__)
 file_in = args.get('FILE')
@@ -86,15 +90,18 @@ Q = ax.quiver(lon_deg,lat_deg,u,v,speed2_mps,cmap=cm.jet,pivot='mid',transform=p
               norm=plt.Normalize(vmin=0.0, vmax=maxvel_mps),
               scale=20, headwidth=6, headlength=8, headaxislength=7)
 plt.colorbar(Q, label='Velocity [m/s]', shrink=0.6, ax=ax)
-#ax.clabel(cs)
 
 gl = ax.gridlines(draw_labels=True,x_inline=False,linewidth=0.5, color='gray')
 gl.top_labels = False
 gl.right_labels = False
+gl.xlabel_style = {'size': 14}
+gl.ylabel_style = {'size': 14}
 
 ax.set_extent((0., 60., 10., 60.), crs=proj )
 #ax.set_title(exp_name+' '+ctitle+'['+cunit+'] k='+str(klayer+1)+' '+date)
 ax.set_title('')
 plt.savefig('temp.png', bbox_inches='tight')
-plt.savefig('eta'+ckl+'_'+date+'.png', bbox_inches='tight')
+plt.savefig('eta'+ckl+'_'+date+'.svg', bbox_inches='tight')
+
+logger.info('OUTPUT: temp.png')
 
