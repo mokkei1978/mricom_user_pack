@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(//home/sakamoto/mricom/src/**)",
+      "Read(//home/sakamoto/mricom/samples/*/**)",
+      "Read(//home/sakamoto/mricom/samples/NAMELIST.OGCM.MONITOR)",
+      "Read(//home/sakamoto/mricom/tools/**)",
+      "Read(//home/sakamoto/mricom/bin/**)",
+      "Read(//home/sakamoto/mricom/ChangeLog*)",
+      "Read(//home/sakamoto/mricom/docs/ChangeLog*)",
+      "Read(//home/sakamoto/mricom/Doxyfile)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/src/**)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/samples/*/**)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/samples/NAMELIST.OGCM.MONITOR)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/tools/**)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/bin/**)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/ChangeLog*)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/docs/ChangeLog*)",
+      "Read(//home/sakamoto/myrect/exp/MRICOM/Doxyfile)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/src/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/samples/*/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/samples/NAMELIST.OGCM.MONITOR)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/tools/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/bin/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/ChangeLog*)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/docs/ChangeLog*)",
+      "Read(//home/sakamoto/sub/myrect/exp/MRICOM/Doxyfile)",
+      "Read(//home/sakamoto/myrect/exp/src/**)",
+      "Read(//home/sakamoto/myrect/exp/src-*/**)",
+      "Read(//home/sakamoto/myrect/exp/modsrc/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/src/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/src-*/**)",
+      "Read(//home/sakamoto/sub/myrect/exp/modsrc/**)"
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+&nml_horz_grid
+  lon_west_end_of_core          = 0.d0,
+  lat_south_end_of_core         = 10.d0,
+  dx_const_deg                  = 1.0d0,
+  dy_const_deg                  = 1.0d0,
+/
+
+&nml_vert_grid
+  file_dz_cm                    = "../data/dz_cm.d",
+/
+
+&nml_topo
+  file_topo                     = '../data/topo.d',
+/
+
+&nml_baroclinic_visc_horz
+  visc_horz_cm2ps               = 2.5d8,
+/
+
+&nml_tracer_diff_horz
+  diff_horz_cm2ps               = 1.0d7,
+/
+
+&nml_time_step
+  dt_sec                        = 3600.0d0,
+  alpha_bryan_1984              = 1.0d0,
+  l_monitor_time                = .true.,
+/
+
+&nml_exp_start
+  year                          = 1901,
+  month                         = 1,
+  day                           = 1,
+/
+
+&nml_run_ini
+  year                          = 1901,
+  month                         = 1,
+  day                           = 1,
+/
+
+&nml_run_ini_state
+  l_rst_in                      = .true.,
+/
+
+&nml_run_period
+  nstep_total                   = 2400,
+/
+
+&nml_barotropic_model
+  dt_barotropic_sec             = 36.0d0,
+/
+
+&nml_barotropic_diff
+  ssh_diff_cm2ps                = 5.d5,
+/
+
+! 強制項目は変数ごとに &nml_force_data を繰り返す
+&nml_force_data
+  name                          = 'U-wind',
+  txyu                          = 'u',
+  file_data                     = '../data/wind_x.gd',
+  file_data_grid                = '../data/wind_grid.d',
+  imfrc                         = 62,
+  jmfrc                         = 52,
+  num_elm                       = 1,
+  interval                      = -999,
+  ifstart                       = 1901,1,1,0,0,0,
+  num_data_max                  = 1,
+  linterp                       = .false.,
+/
+
+! トレーサも変数ごとに &nml_tracer_data を繰り返す
+&nml_tracer_data
+  name                          = "Potential Temperature",
+  adv_scheme%name               = "quick",
+  restore_conf%l_surf_restore   = .false.,
+  restore_conf%l_body_restore   = .false.,
+/
+&nml_tracer_data
+  name                          = "Salinity",
+  adv_scheme%name               = "quick",
+  restore_conf%l_surf_restore   = .false.,
+  restore_conf%l_body_restore   = .false.,
+/
+
+&nml_stdout
+  l_stdout2file                 = .true.,
+  file_base_stdout              = '19010101',
+/
+
+&nml_mpi
+  l_serial_sum_mpi              = .true.,
+/
+
+! リスタート出力も変数ごとに &nml_restart を繰り返す（詳細はREADME_Restart参照）
+&nml_restart
+  name                          = 'Potential temperature',
+  file_base                     = '../restart-main/rs_t',
+  interval_step                 = 240,
+/
