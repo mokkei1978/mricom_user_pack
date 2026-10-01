@@ -298,7 +298,7 @@ AIが生成したnamelistをレビューする際、最低限これだけは確�
 * `~/mricom/docs/README_Namelist.md` — 全namelistグループの一次情報源（`grep -n '^&nml_<name>'` で探す）
 * `~/mricom/docs/README_Restart.md` / `README_Monitor.md` — リスタート・出力設定
 * [mricom-readme-map.md](mricom-readme-map.md) — 目的別のREADME参照先
-* myrect の `exp/run/namelist/*.in`・`exp/run/option/*/` — 実際に動くnamelistテンプレートとオプション別の断片
+* MRICOM-rect の `exp/run/namelist/*.in`・`exp/run/option/*/` — 実際に動くnamelistテンプレートとオプション別の断片
 * READMEで確定できない既定値などは、人間がモデル開発者に確認する（AIはソースを読まない）
 * `anl/rectangle/` (本リポジトリ) — 矩形海テストケースの解析スクリプト（上記実例の対応先）
 

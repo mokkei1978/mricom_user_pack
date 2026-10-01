@@ -1,8 +1,9 @@
-MRI.COM 実験ドキュメント集（AI支援用）
+MRI.COM チュートリアル
 ========
 
-MRI.COMを使った実験を、Claude等のAIアシスタントの助けを借りて進めるためのドキュメント集。
-人間向けの手引きであると同時に、AIに読ませて「正しい文脈で手伝わせる」ことを目的とする。
+MRI.COM に習熟するためのチュートリアルと、実験時に引くリファレンス集。
+人間向けの手引きであると同時に、Claude 等の AI に読ませて「正しい文脈で手伝わせる」ことを目的とする。
+namelist 作成支援もこの一部として、各ステップからリファレンスを参照する。
 
 
 情報源のルール（最重要）
@@ -10,22 +11,38 @@ MRI.COMを使った実験を、Claude等のAIアシスタントの助けを借�
 
 * **MRI.COMモデル本体のソースコードはAIに読ませない。** AIが参照してよいのはREADME類のみ。
   * 可: `~/mricom/README_First.md`, `~/mricom/docs/README_*.md`
+  * 可: 公開マニュアル [気象研究所技術報告第87号](https://www.mri-jma.go.jp/Publish/Technical/DATA/VOL_87/index.html)（MRI.COM 第5版）
   * 不可: `src/`, `samples/` 以下, `tools/`, `ChangeLog*` など README 以外すべて
-    （`~/myrect/exp/MRICOM/`, `~/myrect/exp/src*/`, `~/myrect/exp/modsrc/` のコピーも同様）
+    （MRICOM-rect・MXE 内の `exp/MRICOM/`, `exp/src*/`, `exp/modsrc/` のコピーも同様）
   * `.claude/settings.json` に Read の deny ルールを設定済み。
     ただしBash経由（`cat`, `grep` など）は防げないので、AIへの依頼時も注意すること。
-* rectangleパッケージ（`~/myrect`）の本体以外の部分（`exp/run/` のスクリプト、`run.conf`、
+* MRICOM-rect（矩形海パッケージ）の本体以外の部分（`exp/run/` のスクリプト、`run.conf`、
   namelistテンプレート、`nml_monitor/`）は参照してよい。
 * READMEに書かれていないこと（デフォルト値の詳細など）をAIが推測で埋めてはいけない。
   不明点は「不明」と明示させ、人間がモデル開発者・ソースで確認する。
 
 
-目次
+チュートリアル `tutorial/`
+--------
+
+順番に進める。各ステップに「目標・前提・手順・完了の確認・よくあるトラブル・AIへの頼み方」を書く。
+
+| ステップ | 内容 |
+|---|---|
+| [0. MRI.COM とは](tutorial/00-about.md) | 概要、公開マニュアル（技術報告第87号）と README 類、MRI.COM / MXE / rectangle の関係 |
+| [1. 取得](tutorial/01-get.md) | MRI.COM・MXE・MRICOM-rect（要申請）と入力データの取得 |
+| [2. 実行環境](tutorial/02-environment.md) | コンパイラ・MPI・`macros.make`・MXE の Fortran テスト・Python 環境 |
+| [3. 矩形海を動かす](tutorial/03-rectangle.md) | MRICOM-rect をそのまま実行 → 結果を描画 → 設定を1つずつ変える・継続run |
+| [4. 矩形海を自作する](tutorial/04-own-toy.md) | MXE の前処理で MRICOM-rect と同じ設定を一から作って再現 → 自分のトイモデルへ |
+| [5. 独自モデル](tutorial/05-own-model.md) | 実地形・実データのモデルに必要な要素と参照先（道案内） |
+
+
+リファレンス
 --------
 
 | ファイル | 内容 | いつ読ませるか |
 |---|---|---|
-| [workflow.md](workflow.md) | 実験の全体手順（myrect の `exp/run/` を基準に、設定→コンパイル→実行→継続→後処理） | 新しい実験を立ち上げるとき、実行で詰まったとき |
+| [workflow.md](workflow.md) | 実験の全体手順（MRICOM-rect の `exp/run/` を基準に、設定→コンパイル→実行→継続→後処理） | 新しい実験を立ち上げるとき、実行で詰まったとき |
 | [mricom-readme-map.md](mricom-readme-map.md) | 「何を知りたいか → MRI.COMのどのREADMEの何節を見るか」の対応表 | 常に。AIが一次情報を探す起点 |
 | [input-data.md](input-data.md) | 入力データ（格子・地形・強制・レストア）のファイル形式と単位 | 前処理（`prep/`）で入力ファイルを作るとき |
 | [namelist-reference.md](namelist-reference.md) | `NAMELIST.OGCM` の主要グループの解説とレビュー用チェックリスト | namelistを作る／レビューするとき |

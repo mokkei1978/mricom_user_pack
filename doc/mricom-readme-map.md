@@ -5,7 +5,7 @@ MRI.COM README 対応表
 AIはまずここで参照先を決め、該当READMEの該当節だけを読むこと（READMEは合計8000行超あり、全部読む必要はない）。
 
 * README の場所: `~/mricom/README_First.md`, `~/mricom/docs/README_*.md`
-  （myrect 内のコピー `~/myrect/exp/MRICOM/docs/` は myrect 同梱版。実験に使うバージョンの方を見る）
+  （MRICOM-rect 内のコピー `exp/MRICOM/docs/` は MRICOM-rect 同梱版。実験に使うバージョンの方を見る）
 * **README 以外（`src/` など）は参照禁止**（[README.md](README.md) の「情報源のルール」）。
 * 行番号はバージョンで変わるので、節名や `grep -n '^&nml_xxx' README_Namelist.md` のような検索キーで探す。
 
@@ -68,6 +68,6 @@ READMEに答えが無いとき
 --------
 
 1. このドキュメント集（特に各ファイルの「落とし穴」）と `namelist-examples/` を確認する。
-2. myrect の `exp/run/option/<MODE>/`（オプション別の設定例）や `exp/run/namelist/*.in` を確認する。
+2. MRICOM-rect の `exp/run/option/<MODE>/`（オプション別の設定例）や `exp/run/namelist/*.in` を確認する。
 3. それでも無ければ、AIは推測で埋めずに「READMEに記載なし」と報告する。
    人間がモデル開発者に確認し、分かったことをこのドキュメント集に追記する。

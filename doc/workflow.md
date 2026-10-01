@@ -1,7 +1,7 @@
 MRI.COM 実験の全体手順
 ========
 
-rectangleパッケージ（`~/myrect`、MXEと同様の構成）の `exp/` で実験を行う場合の手順。
+MRICOM-rect（矩形海パッケージ、MXEと同様の構成）の `exp/` で実験を行う場合の手順。
 スクリプトは `exp/run/` にあり、統合テスト `exp/test-system/test_exp.sh` が
 標準手順の実例になっている（迷ったらこのスクリプトを読む）。
 
@@ -141,14 +141,14 @@ MRI.COMのバージョン（ChangeLog先頭行）も `log/conf.txt` に記録さ
 3. `&nml_run_ini_state/l_rst_in = .true.` を確認する
 4. 前runのリスタートが `restart-main/` から読める状態にする（`initial_main` の切り替えまたはリンク）
 
-<!-- TODO: 要確認。myrect のスクリプトには継続runの自動化が無い。
+<!-- TODO: 要確認。MRICOM-rect のスクリプトには継続runの自動化が無い。
      実際に継続runを行った手順（リスタートファイル名と run_ini の対応、forcing の ifstart の扱い）を追記する -->
 
 リスタートの入出力方式（`read_method`/`write_method`、ノード別ファイルなど）と
 必須変数の一覧は `README_Restart.md` を参照。
 「X/Y diffusion flux for ssh」のリスタートが無い場合は
 `nml_barotropic_run/l_rst_barotropic_dflx_in = .false.` にする（`README_Restart.md` より。
-myrect のテンプレートはこの設定になっている）。
+MRICOM-rect のテンプレートはこの設定になっている）。
 
 
 落とし穴
