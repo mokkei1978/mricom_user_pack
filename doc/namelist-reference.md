@@ -5,7 +5,7 @@ MRI.COMの実行に必要なNamelist（`NAMELIST.OGCM`）作成をAIに手伝っ
 人間が読むためだけでなく、Claude等のAIアシスタントに読ませて
 「妥当なnamelistを提案させる／レビューさせる」ことを主目的とする。
 
-対象バージョン: MRI.COM 開発版（`~/mricom`, 2026年5月時点）の `docs/README_Namelist.md` に基づく。
+対象バージョン: MRI.COM 安定版 v5.4（ブランチ `5_4`）の `docs/README_Namelist.md` に基づく。
 
 > **情報源のルール**: AIが参照してよいのはMRI.COMのREADME類のみ。モデル本体のソース（`src/` など）は
 > 参照禁止（[README.md](README.md)）。READMEに無い情報は推測で埋めず、TODOとして残すこと。

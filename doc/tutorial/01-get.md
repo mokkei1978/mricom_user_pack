@@ -14,10 +14,10 @@ Step 1: MRI.COM・MXE・MRICOM-rect の取得
 | もの | 使うステップ | 入手先 |
 |---|---|---|
 | MRICOM-rect（矩形海パッケージ、MRI.COM 同梱） | 3 | https://github.com/mri-ocean/MRICOM-rect （要申請） |
-| 矩形海の入力データ | 3 | `git clone https://github.com/mokkei1978/rectangle_data.git`（MRICOM-rect の `README.md`） |
+| 矩形海の入力データ（rectangle_data） | 3 | `git clone https://github.com/mokkei1978/rectangle_data.git`（公開。MRICOM-rect の `README.md` に記載） |
 | MXE | 4, 5 | https://github.com/mri-ocean/MXE （要申請） |
 | MRI.COM 本体 | 4, 5 | https://github.com/mri-ocean/MRICOM （要申請） |
-| 本リポジトリ | 3〜5（解析） | <!-- TODO: 要確認 --> |
+| 本リポジトリ（mricom_user_pack） | 3〜5（解析） | `git clone https://github.com/mokkei1978/mricom_user_pack.git`（公開） |
 | （任意）mxe-docker | 2 | https://github.com/mokkei1978/mxe-docker （Docker で環境を作る場合） |
 
 Step 3 までは MRICOM-rect と入力データだけで進められる。
@@ -30,22 +30,39 @@ MRICOM, MXE, MRICOM-rect の各リポジトリは非公開で、利用には次�
 1. 気象研究所への書類申請
 2. GitHub への登録
 
-<!-- TODO: 要確認。申請書類の入手先・提出先（MRI.COM web page の該当ページ）、所要日数 -->
+申請書類は [MRI.COM web page](https://mri-ocean.github.io/mricom/) から入手でき、送付先のメールアドレスも同ページに記載されている。
+了承までには数日かかる。
 
 申請が通るまでの間は [Step 0](00-about.md) の公開マニュアルを読み進めておくとよい。
 
 
 ### バージョンをそろえる
 
-<!-- TODO: 要確認。5.4 に対応するタグ・ブランチ名と、MRICOM-rect 同梱の MRI.COM（開発版）との関係。
-     Step 4 で MRICOM-rect の結果を再現するには、MRI.COM・MXE・MRICOM-rect の版の組み合わせをそろえる必要がある -->
+* MRI.COM 5.4 はリポジトリ MRICOM のブランチ `5_4`。clone 後に `git checkout 5_4` する。
+* MRICOM-rect に同梱の MRI.COM は最新の開発版（v5.5）。5.4 と少し異なるが、ほぼ同じ。
+
+Step 3（MRICOM-rect）は同梱の v5.5、Step 4 以降（MXE）は手元の 5.4 で動かすことになる。
+Step 4 で Step 3 の結果と比べるときは、この版の違いを念頭に置く。
 
 
 ディレクトリ配置の例
 --------
 
-<!-- TODO: 推奨配置を決める。clone 先のディレクトリ名は任意
-     （作者環境: MRICOM → ~/mricom, MRICOM-rect → ~/myrect, ~/rectangle_data, ~/mxe-docker） -->
+配置は自由に決めてよい。ただし次を推奨する。
+
+* **ソースコードのリポジトリ**（MRICOM, MXE, MRICOM-rect, mricom_user_pack）は home の下に置く（直下でなくてよい）。
+* **入力データ**（rectangle_data など）は外部ディスクに置く。
+
+配置の例（本チュートリアルではソースをこの名前で書く。自分の配置に読み替えること）:
+
+```
+~/mricom                        MRICOM（ブランチ 5_4）
+~/mxe                           MXE
+~/rect                          MRICOM-rect
+~/mricom_user_pack              本リポジトリ（mricom_user_pack）
+~/mxe-docker                    mxe-docker（任意）
+<外部ディスク>/rectangle_data   矩形海の入力データ
+```
 
 
 完了の確認

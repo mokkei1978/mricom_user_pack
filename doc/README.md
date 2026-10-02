@@ -11,7 +11,7 @@ namelist 作成支援もこの一部として、各ステップからリファ�
 
 * **MRI.COMモデル本体のソースコードはAIに読ませない。** AIが参照してよいのはREADME類のみ。
   * 可: `~/mricom/README_First.md`, `~/mricom/docs/README_*.md`
-  * 可: 公開マニュアル [気象研究所技術報告第87号](https://www.mri-jma.go.jp/Publish/Technical/DATA/VOL_87/index.html)（MRI.COM 第5版）
+  * 可: 公開マニュアル [気象研究所技術報告第87号](https://www.mri-jma.go.jp/Publish/Technical/DATA/VOL_87/index.html)（MRI.COM v5.0 対応。食い違うときは `docs/README_*.md` を優先）
   * 不可: `src/`, `samples/` 以下, `tools/`, `ChangeLog*` など README 以外すべて
     （MRICOM-rect・MXE 内の `exp/MRICOM/`, `exp/src*/`, `exp/modsrc/` のコピーも同様）
   * `.claude/settings.json` に Read の deny ルールを設定済み。

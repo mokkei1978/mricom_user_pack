@@ -8,8 +8,9 @@ MRI.COM実験（設定・namelist・入力データ・実行・解析）を手�
 - MRI.COMモデル本体のソースコードは参照禁止。読んでよいのは README 類のみ:
   `~/mricom/README_First.md`, `~/mricom/docs/README_*.md`（MRICOM-rect 同梱の `exp/MRICOM/` も同様）。
   `src/`, `samples/`, `tools/`, `ChangeLog*` などは Read でも Bash（cat, grep 等）でも読まない。
-- 公開マニュアルは参照してよい: 気象研究所技術報告第87号「気象研究所共用海洋モデル第5版」
+- 公開マニュアルは参照してよい: 気象研究所技術報告第87号「気象研究所共用海洋モデル第5版」（v5.0 対応）
   https://www.mri-jma.go.jp/Publish/Technical/DATA/VOL_87/index.html
+- 資料が食い違うときは `docs/README_*.md` を優先する（技術報告は v5.0 用で少し古い。`README_First.md` 冒頭の「version 4.3」は誤り）。
 - MRICOM-rect（矩形海パッケージ。このマシンでは `~/myrect`）の本体以外（`exp/run/` のスクリプト、`run.conf`、namelistテンプレート、
   `nml_monitor/`, `option/`）は参照してよい。`exp/src*/`, `exp/modsrc/` は本体ソースなので不可。
 - README に書かれていないこと（既定値など）は推測で埋めず、「README に記載なし」と明示する。
