@@ -54,11 +54,11 @@ MXE の `prep/rectangle/README.md` の手順に従う。
 <!-- TODO: 推奨する例題（二重ジャイヤ、周期水路など）と、それぞれ見るべき結果 -->
 
 
-よくあるトラブル
+落とし穴
 --------
 
 * 格子数（`configure.in`）と入力データ・`NAMELIST.MXE`・`NAMELIST.OGCM` のサイズが食い違う
-  （[../workflow.md](../workflow.md)「落とし穴」）
+  （[03-rectangle.md](03-rectangle.md)「落とし穴」）
 
 <!-- 経験したら追記 -->
 

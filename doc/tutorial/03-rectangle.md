@@ -6,7 +6,7 @@ Step 3: 矩形海モデルを動かす（MRICOM-rect をそのまま使う）
 
 **前提**: [Step 2](02-environment.md) の環境確認が済んでいる。
 
-手順の詳細は [../workflow.md](../workflow.md)（`exp/run/` の各スクリプト）を参照。
+手順の詳細は [rect_workflow.md](rect_workflow.md)（`exp/run/` の各スクリプト）を参照。
 
 
 3a. そのまま回す
@@ -18,7 +18,7 @@ Step 3: 矩形海モデルを動かす（MRICOM-rect をそのまま使う）
 # (最初に 1 回) リポジトリ直下で Setup.sh を実行し setting/macros.make を作る
 cd ~/rect/exp
 sh clean.sh                  # 前回の作業ファイルを掃除
-sh make_newexp.sh tut3       # 実験名 tut3。linkdir/result/tut3/ に出力先を作りリンクを張る
+sh make_newexp.sh test3a     # 実験名 test3a。linkdir/result/test3a/ に出力先を作りリンクを張る
 cd run
 sh setup.sh docker           # 一般の Linux + gfortran + Open MPI ならこれ（下記）
 sh compile.sh                # ../src/ogcm ができる
@@ -66,9 +66,9 @@ sh mv_log.sh                 # 標準出力などを log/ へ
 ```bash
 source ~/venv/bin/activate      # xarray, xgrads, cartopy, docopt を入れた Python 環境
 cd ~/mricom_user_pack/anl/rectangle
-D=../../link/data/rectangle/result/tut3/hst_day-main
-python contour_ssh_um_grads.py  $D 1901-01-10 tut3   # (1) SSH + 鉛直積分速度（hs_sfc_um/vm）→ temp.png
-python contour_ssh_vel_grads.py $D 1901-01-10 tut3   # (2) SSH + 第 1 層（10 m）の速度（hs_u/v）→ temp.png
+D=../../link/data/rectangle/result/test3a/hst_day-main
+python contour_ssh_um_grads.py  $D 1901-01-10 test3a   # (1) SSH + 鉛直積分速度（hs_sfc_um/vm）→ temp.png
+python contour_ssh_vel_grads.py $D 1901-01-10 test3a   # (2) SSH + 第 1 層（10 m）の速度（hs_u/v）→ temp.png
 ```
 
 出力はどちらも `temp.png`（上書きされる）なので、1 枚ずつ見る。
@@ -91,7 +91,73 @@ python contour_ssh_vel_grads.py $D 1901-01-10 tut3   # (2) SSH + 第 1 層（10 
 * [ ] 第 1 層の速度がエクマン流でジャイアと向きが違う理由を説明できる
 
 
-3c. 設定を変えてみる
+3c. 継続実験（リスタートからの再開）
+--------
+
+長期積分は run を繰り返してつなぐ。3a の `test3a`（1/1〜1/10）の続きとして 1/11〜1/20 を回し、
+最初から 20 日間通して回した場合とビット一致することを確かめる。
+
+継続 run は **新しい実験名** (test3cとする)で行い、前 run のリスタートにリンクを張る。
+同じ実験名のまま回すと、ヒストリー（年ごとのファイル `hs_*.1901`）と
+`run/mv_log.sh` で移すログ（ファイル名が `OGCM-19010101-stdout.*` のまま）が前 run の分を上書きする。
+
+```bash
+cd ~/rect/exp
+sh clean.sh
+sh make_newexp.sh test3c
+ln -s ~/rect/linkdir/result/test3a/restart-main/rs_*.19010111000000 restart-main/
+```
+
+namelist テンプレートを 4 か所変える（`link_restart.sh` は使わない）:
+
+| ファイル | 設定 | 初回 (3a) | 継続 |
+|---|---|---|---|
+| `NAMELIST-common.in` | `&nml_run_ini` の `day` | `1` | `11`（前 run の終了時刻） |
+| `NAMELIST-common.in` | `&nml_run_ini_state/l_rst_LFAM3_in` | `.false.` | `.true.` |
+| `NAMELIST-common.in` | `&nml_vmix_run/l_rst_vmix_in` | `.false.` | `.true.` |
+| `NAMELIST-main.in` | `&nml_barotropic_run/l_rst_barotropic_dflx_in` | `.false.` | `.true.` |
+
+* `&nml_exp_start`（実験全体の開始日 1901/1/1）は変えない。`run.conf` の `period_day=10` もそのまま。
+* 読み込むリスタートは `rs_*.` + `nml_run_ini` の日時（ここでは `rs_t.19010111000000` など）。
+  標準出力の `Open  ../restart-main/rs_t.19010111000000` で確かめられる。
+* 初回の値が `.false.` なのは、初期値 `main.23` に前ステップ値（LFAM3）・鉛直混合係数・SSH 拡散フラックスの
+  リスタートが無いため（意味は `README_Restart.md` "Standard namelists"）。3a の run はこれらを出力しているので、
+  継続では `.true.` にして読む。
+* 強制は定常（`interval = -999`）なので `&nml_force_data` の `ifstart` は変えなくてよい。
+* test3aとディレクトリを変えずに実験して
+  ヒストリー出力を上書きしないためには、`run_pre.sh`で生成される
+  NAMELIST.OGCM.MONITORの `suffix`を`'day'`とするか削除する(デフォルトは'day')。
+* 標準ログ出力を上書きしないためには、`file_base_stdout` を`'19010121'`とする
+
+```bash
+cd run
+sh run_pre.sh
+sh run.sh                    # EXP succeed.
+sh mv_log.sh
+cd ..
+git checkout -- run/namelist # テンプレートを初回の設定に戻す
+```
+
+**比較用に 20 日間通して回す**: テンプレートは初回のまま、`run.conf` を `period_day=20` にして
+実験名 `test3a-20d` で 3a と同じ手順を踏む。終わったら両者の 1/21 0:00 のリスタートを比べる:
+
+```bash
+cd ~/rect/linkdir/result
+for f in test3a-20d/restart-main/rs_*.19010121000000; do
+  cmp -s $f test3c/restart-main/$(basename $f) && echo "same $f" || echo "DIFF $f"
+done
+```
+
+* `nml_run_ini` だけ変え、3 つのフラグを `.false.` のままにした継続 run → `EXP succeed.` になるが
+  結果は一致しない。
+  **エラーにならないので、フラグの戻し忘れに気づきにくい**。
+
+**完了の確認**:
+* [ ] 継続 run `test3c` が前 run のリスタート（`*.19010111000000`）を読んで `EXP succeed.` になる
+* [ ] 通し run `test3a-20d` と 1/21 のリスタートがビット一致する
+
+
+3d. 設定を変えてみる
 --------
 
 1 回に 1 つだけ変え、3b と同じ図で比較する。
@@ -103,31 +169,34 @@ python contour_ssh_vel_grads.py $D 1901-01-10 tut3   # (2) SSH + 第 1 層（10 
 | `run/change_option.sh MODE` | オプション追加（例: hflux） | 必要 |
 | `config_files/configure.in` | 格子数、MPI 分割 | 必要（入力データも作り直し → Step 4） |
 
+`run.conf`や`NAMELIST-*.in`を変えた場合は、`run_pre.sh`の再実行が必要。
 namelist を編集するときは [../namelist-reference.md](../namelist-reference.md) と
 [../namelist-examples/rectangle/](../namelist-examples/rectangle/README.md) を参照する。
 
-最後に継続 run（リスタートからの再開）を 1 回行う（[../workflow.md](../workflow.md)「継続run」）。
-
 **完了の確認**:
 * [ ] パラメータ変更前後の違いを図で説明できる
-* [ ] 継続 run がつながる
 
 
-よくあるトラブル
+落とし穴
 --------
 
-[../workflow.md](../workflow.md) の「落とし穴」を参照。新しく見つけたらそちらへ追記する。
-
-* `exp/test.sh`（全オプションの統合テスト）は各テスト後に `exp/` で `git checkout .` を実行する。
-  `exp/` 以下の未コミットの編集（`run.conf`、namelist など）が消えるので、作業中のコピーでは使わない。
-* `setup.sh` は `config_files/configure.in*` を書き換える（`docker` は追記）。
+* `setup.sh` は `config_files/configure.in*` を書き換える。
   実験後に元に戻すなら `git checkout -- config_files`。
+* `setup.sh`/`change_option.sh` を何度も実行すると、`OPTIONS` やnamelist断片が**重複して追記**される。
+  やり直すときは `git checkout .` で戻してから実行し直す。
+* 格子点数（`IMUT`/`JMUT`/`KM`）はコンパイル時設定。地形・層厚・強制データのサイズと一致させる。
+  層厚ファイルの `km` と `KM` が食い違うとエラー。
+* MPI分割数 `NPARTX×NPARTY` と `run.sh` の `mpirun -np` を一致させる。
+* `period_day` を空にするとデバッグ用の12ステップ積分になる（出力間隔も1ステップ単位になる）。
+* 単位系は基本的に **cgs**（cm, g, s）。ただし海氷・海面フラックスなど一部の表層過程は **MKS**
+  （`README_First.md` Sec.2.2）。パラメータ名の接尾辞（`_cm`, `_cm2ps`, `_sec`, `_deg`）で単位を確認する。
+* `exp/test.sh`（全オプションの統合テスト）は気象研究所での開発用。使わない。
 
 
 AIへの頼み方（例）
 --------
 
 ```
-doc/tutorial/03-rectangle.md と doc/workflow.md を読んで、矩形海実験を dt=1800秒・30日間で
+doc/tutorial/03-rectangle.md と doc/tutorial/rect_workflow.md を読んで、矩形海実験を dt=1800秒・30日間で
 回すために run.conf と namelist のどこを変えればよいか教えて。
 ```

@@ -1,7 +1,8 @@
-MRI.COM 実験の全体手順
+MRICOM-rect の実験手順
 ========
 
-MRICOM-rect（矩形海パッケージ、MXEと同様の構成）の `exp/` で実験を行う場合の手順。
+MRICOM-rect（矩形海パッケージ、MXEと同様の構成）の `exp/` で実験を行う場合の手順（チュートリアル Step 3 用）。
+MXE で自作する Step 4 以降の流れは扱わない。
 スクリプトは `exp/run/` にあり、統合テスト `exp/test-system/test_exp.sh` が
 標準手順の実例になっている（迷ったらこのスクリプトを読む）。
 
@@ -95,7 +96,7 @@ MRICOM-rect（矩形海パッケージ、MXEと同様の構成）の `exp/` で�
 
 namelistの `@...@` 以外の部分（格子・地形・強制・粘性など）を変えたいときは
 `run/namelist/NAMELIST-main.in`（モデル固有部分）と `NAMELIST-common.in`（共通部分）を直接編集する。
-各グループの意味は [namelist-reference.md](namelist-reference.md) と `README_Namelist.md`。
+各グループの意味は [namelist-reference.md](../namelist-reference.md) と `README_Namelist.md`。
 
 ### [6]–[7] 初期値リンクと前処理
 
@@ -139,26 +140,17 @@ MRI.COMのバージョン（ChangeLog先頭行）も `log/conf.txt` に記録さ
 1. 前runの `restart-main/` に出力されたリスタート（`rs_*.YYYYMMDDhhmmss` 形式）を確認する
 2. `NAMELIST-common.in` の `&nml_run_ini` を前runの終了時刻に書き換える
 3. `&nml_run_ini_state/l_rst_in = .true.` を確認する
-4. 前runのリスタートが `restart-main/` から読める状態にする（`initial_main` の切り替えまたはリンク）
+4. 前runのリスタートが `restart-main/` から読める状態にする（`initial_main` の切り替えまたはリンク）。
+   読まれるのは `rs_*.` + `nml_run_ini` の日時のファイル
+5. 初回に `.false.` にしてある `l_rst_LFAM3_in`, `l_rst_vmix_in`, `l_rst_barotropic_dflx_in` を `.true.` にする
+   （忘れても走るが、通しrunと一致しない）
 
-<!-- TODO: 要確認。MRICOM-rect のスクリプトには継続runの自動化が無い。
-     実際に継続runを行った手順（リスタートファイル名と run_ini の対応、forcing の ifstart の扱い）を追記する -->
+MRICOM-rect のスクリプトには継続runの自動化が無い。手で行う手順（新しい実験名で前runのリスタートにリンクを張る、
+`l_rst_LFAM3_in`/`l_rst_vmix_in`/`l_rst_barotropic_dflx_in` を `.true.` にする）と、
+通しrunとのビット一致の確認は [03-rectangle.md](03-rectangle.md) の 3c を参照（2026-10-04 確認）。
 
 リスタートの入出力方式（`read_method`/`write_method`、ノード別ファイルなど）と
 必須変数の一覧は `README_Restart.md` を参照。
 「X/Y diffusion flux for ssh」のリスタートが無い場合は
 `nml_barotropic_run/l_rst_barotropic_dflx_in = .false.` にする（`README_Restart.md` より。
 MRICOM-rect のテンプレートはこの設定になっている）。
-
-
-落とし穴
---------
-
-* 格子点数（`IMUT`/`JMUT`/`KM`）はコンパイル時設定。地形・層厚・強制データのサイズと一致させる。
-  層厚ファイルの `km` と `KM` が食い違うとエラー。
-* MPI分割数 `NPARTX×NPARTY` と `run.sh` の `mpirun -np` を一致させる。
-* `setup.sh`/`change_option.sh` を何度も実行すると、`OPTIONS` やnamelist断片が**重複して追記**される。
-  やり直すときは `git checkout .` で戻してから実行し直す。
-* `period_day` を空にするとデバッグ用の12ステップ積分になる（出力間隔も1ステップ単位になる）。
-* 単位系は基本的に **cgs**（cm, g, s）。ただし海氷・海面フラックスなど一部の表層過程は **MKS**
-  （`README_First.md` Sec.2.2）。パラメータ名の接尾辞（`_cm`, `_cm2ps`, `_sec`, `_deg`）で単位を確認する。

@@ -21,7 +21,7 @@ MRI.COM 習熟のためのチュートリアル（`doc/tutorial/`, Step 0〜5）
 
 - `doc/README.md` — 目次と AI への頼み方
 - `doc/tutorial/` — 00 概要・マニュアル, 01 取得, 02 実行環境, 03 rectangle 実行, 04 MXE で矩形海を自作, 05 独自モデル
-- `doc/workflow.md` — 実験手順（MRICOM-rect の exp/run/）
+- `doc/tutorial/rect_workflow.md` — MRICOM-rect の実験手順（exp/run/、Step 3 の詳細版）
 - `doc/mricom-readme-map.md` — 目的別の README 参照先
 - `doc/input-data.md` — 入力データの形式・単位
 - `doc/namelist-reference.md`, `doc/namelist-examples/` — namelist の解説・実例

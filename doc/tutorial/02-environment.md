@@ -76,7 +76,7 @@ MRICOM-rect の `docker/README.md`、mxe-docker の README を参照。
 動作実績（2026-10-04, Debian 13）: gfortran 14.2.0、Open MPI 5.0.7、netCDF-Fortran 4.5.4 で Step 3a が通った。Python は上表のライブラリを入れた venv で Step 3b が描けた。
 
 
-よくあるトラブル
+落とし穴
 --------
 
 <!-- 経験したら追記 -->
