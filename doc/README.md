@@ -6,17 +6,18 @@ MRI.COM に習熟するためのチュートリアルと、実験時に引くリ
 namelist 作成支援もこの一部として、各ステップからリファレンスを参照する。
 
 
-情報源のルール（最重要）
+情報源のルール（AI用、最重要）
 --------
 
 * **MRI.COMモデル本体のソースコードはAIに読ませない。** AIが参照してよいのはREADME類のみ。
-  * 可: `~/mricom/README_First.md`, `~/mricom/docs/README_*.md`
+  * 可: MRI.COMリポジトリ中のREADME: `README_First.md`, `docs/README_*.md`
   * 可: 公開マニュアル [気象研究所技術報告第87号](https://www.mri-jma.go.jp/Publish/Technical/DATA/VOL_87/index.html)（MRI.COM v5.0 対応。食い違うときは `docs/README_*.md` を優先）
   * 不可: `src/`, `samples/` 以下, `tools/`, `ChangeLog*` など README 以外すべて
-    （MRICOM-rect・MXE 内の `exp/MRICOM/`, `exp/src*/`, `exp/modsrc/` のコピーも同様）
-  * `.claude/settings.json` に Read の deny ルールを設定済み。
-    ただしBash経由（`cat`, `grep` など）は防げないので、AIへの依頼時も注意すること。
-* MRICOM-rect（矩形海パッケージ）の本体以外の部分（`exp/run/` のスクリプト、`run.conf`、
+    （矩形海パッケージ MRICOM-rect 内の `exp/MRICOM/`, `exp/src*/`, `exp/modsrc/` のコピーも同様）
+  * `.claude/settings.json` に Read の deny ルールを設定する。
+    ただし`cat`, `grep` などBash経由は防げないので、AIへの依頼時も注意すること。
+* Claude Codeでは、入力データを学習に利用しないように設定する。(「Help improve Claude」をオフにする)
+* MRICOM-rect の本体以外の部分（`exp/run/` のスクリプト、`run.conf`、
   namelistテンプレート、`nml_monitor/`）は参照してよい。
 * READMEに書かれていないこと（デフォルト値の詳細など）をAIが推測で埋めてはいけない。
   不明点は「不明」と明示させ、人間がモデル開発者・ソースで確認する。

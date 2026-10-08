@@ -34,7 +34,7 @@ sh mv_log.sh                 # 標準出力などを log/ へ
   `mpirun -np 4`（OpenMP 2 スレッド）で実行する。Docker 外の普通の Linux でもそのまま使える。
   `gfortran` は気象研内サーバ用（`MACHINE=mri-ogsv009-gfortran`）。
 * 実験名を毎回変えれば過去の結果を上書きしない。
-* 実績（2026-10-04, 4 コア, gfortran 14.2.0, Open MPI 5.0.7）: `compile.sh` 約 30 秒、10 日積分（240 step）約 10 秒。
+* 実績（4 コア, gfortran 14.2.0, Open MPI 5.0.7）: `compile.sh` 約 30 秒、10 日積分（240 step）約 10 秒。
 
 **完了の確認**:
 

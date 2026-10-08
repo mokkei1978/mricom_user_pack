@@ -10,15 +10,19 @@ Step 1: MRI.COM・MXE・MRICOM-rect の取得
 --------
 
 対象バージョンは **MRI.COM 5.4**。
+全て GitHub から入手する。
 
 | もの | 使うステップ | 入手先 |
 |---|---|---|
 | MRICOM-rect（矩形海パッケージ、MRI.COM 同梱） | 3 | https://github.com/mri-ocean/MRICOM-rect （要申請） |
-| 矩形海の入力データ（rectangle_data） | 3 | `git clone https://github.com/mokkei1978/rectangle_data.git`（公開。MRICOM-rect の `README.md` に記載） |
+| 矩形海の入力データ（rectangle_data） | 3 |  https://github.com/mokkei1978/rectangle_data（公開。MRICOM-rect の `README.md` に記載） |
 | MXE | 4, 5 | https://github.com/mri-ocean/MXE （要申請） |
 | MRI.COM 本体 | 4, 5 | https://github.com/mri-ocean/MRICOM （要申請） |
-| 本リポジトリ（mricom_user_pack） | 3〜5（解析） | `git clone https://github.com/mokkei1978/mricom_user_pack.git`（公開） |
+| 本リポジトリ（mricom_user_pack） | 3〜5（解析） | https://github.com/mokkei1978/mricom_user_pack （公開） |
 | （任意）mxe-docker | 2 | https://github.com/mokkei1978/mxe-docker （Docker で環境を作る場合） |
+
+gitが使える環境であれば `git clone`コマンドでリポジトリを入手する。入手先URLは緑の「<code>」ボタンから、「ssh」を選ぶ。
+gitが使えなければ、GitHub webページから直接にダウンロードする。
 
 Step 3 までは MRICOM-rect と入力データだけで進められる。
 
@@ -50,8 +54,8 @@ Step 4 で Step 3 の結果と比べるときは、この版の違いを念頭�
 
 配置は自由に決めてよい。ただし次を推奨する。
 
-* **ソースコードのリポジトリ**（MRICOM, MXE, MRICOM-rect, mricom_user_pack）は home の下に置く（直下でなくてよい）。
-* **入力データ**（rectangle_data など）は外部ディスクに置く。
+* **ソースコードのリポジトリ**（MRICOM, MXE, MRICOM-rect, mricom_user_pack）は home 領域に置く（直下でなくてよい）。
+* **入力データ**（rectangle_data など）は、 home 領域ではなくRAIDなどシステム内のデータ置き場に置く。
 
 配置の例（本チュートリアルではソースをこの名前で書く。自分の配置に読み替えること）:
 
