@@ -173,8 +173,58 @@ done
 namelist を編集するときは [../namelist-reference.md](../namelist-reference.md) と
 [../namelist-examples/rectangle/](../namelist-examples/rectangle/README.md) を参照する。
 
+### 例: 水平粘性を 2 倍にする
+
+標準設定の運動量の水平粘性は `NAMELIST-main.in` の `&nml_baroclinic_visc_horz/visc_horz_cm2ps = 2.5d8`
+（ラプラシアン型。`OPTIONS` に `BIHARMONIC`/`VISBIHARM` が無いため。`README_Namelist.md`）。
+順圧モードの粘性 `&nml_barotropic_visc_horz` はオプション `FSVISC` のときだけ使うもので、標準設定では使わない。
+これを `5.0d8` にして、3a と同じ 10 日間を新しい実験名 `test3d` で回す。
+
+```bash
+cd ~/rect/exp
+sh clean.sh
+sh make_newexp.sh test3d
+cd run
+sh setup.sh docker
+sed -i 's/visc_horz_cm2ps *= 2.5d8/visc_horz_cm2ps               = 5.0d8/' namelist/NAMELIST-main.in
+sh compile.sh
+sh link_restart.sh
+sh run_pre.sh
+grep -A1 nml_baroclinic_visc_horz NAMELIST.OGCM   # 5.0d8 になっていることを確かめる
+sh run.sh                    # EXP succeed.
+sh mv_log.sh
+cd ..
+git checkout -- run/namelist config_files   # テンプレートを元に戻す
+```
+
+3b の図（`contour_ssh_um_grads.py`）に加えて、西岸境界流を横切る断面で鉛直積分南北速度 `vm` を重ねて描く:
+
+```bash
+cd ~/mricom_user_pack/anl/rectangle
+R=../../link/data/rectangle/result
+python contour_ssh_um_grads.py $R/test3d/hst_day-main 1901-01-10 test3d
+python section_vm_grads.py 1901-01-10 25.5 15 $R/test3a/hst_day-main $R/test3d/hst_day-main
+```
+
+結果（10 日目）:
+
+| | test3a（2.5d8） | test3d（5.0d8） |
+|---|---|---|
+| SSH 最大 / 最小 [cm] | 4.32 / −6.80 | 4.11 / −6.46 |
+| 25.5°N の `vm` 最大 [10⁵ cm²/s] | 13.0（1.5°E） | 10.8（1.5°E） |
+| 25.5°N で `vm` が負に転じる経度 | 約 4.4°E | 約 5.3°E |
+| 25.5°N、0–5°E の北向き `vm` の和 | 34.8 | 33.3 |
+
+* ジャイアの形はほとんど変わらず、差は西岸境界流に現れる。
+  粘性を大きくすると西岸境界流が弱く・幅広くなり、北向き輸送の合計はほぼ同じ（−4%）。
+* これは Munk の西岸境界層（幅 δ = (A/β)^{1/3}）の予想と整合的。粘性 2 倍で幅は 2^{1/3} ≈ 1.26 倍。
+  断面で `vm` が負に転じる経度（4.4°E → 5.3°E、幅で約 1.2 倍）がこれに近い。
+  輸送の合計は内部領域のスベルドラップ輸送（風応力で決まる）を返す分なので、粘性に依らない。
+* 10 日間は平衡には足りないが、西岸境界層は局所的に速く応答するので差はすでに現れている。
+* 領域平均 SSH の保存（`zos (#snap...)`）は 1e-16 cm 程度で、3a と同様に保たれる。
+
 **完了の確認**:
-* [ ] パラメータ変更前後の違いを図で説明できる
+* [ ] パラメータ変更前後の違いを図で説明できる（例: 粘性 2 倍で西岸境界流が弱く幅広くなり、輸送は変わらない）
 
 
 落とし穴
