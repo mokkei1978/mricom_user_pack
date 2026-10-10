@@ -166,7 +166,7 @@ done
 |---|---|---|
 | `run/run.conf` | 積分期間 `period_day`、時間刻み `dt_sec`、出力間隔 | 不要 |
 | `run/namelist/NAMELIST-*.in` | 粘性・拡散係数、風応力 | 不要 |
-| `run/change_option.sh MODE` | オプション追加（例: hflux） | 必要 |
+| `config_files/configure.in` の `OPTIONS` | オプション追加（例: `NETCDF`、`HFLUX`）。対応する namelist も加える | 必要 |
 | `config_files/configure.in` | 格子数、MPI 分割 | 必要（入力データも作り直し → Step 4） |
 
 `run.conf`や`NAMELIST-*.in`を変えた場合は、`run_pre.sh`の再実行が必要。
@@ -223,8 +223,105 @@ python section_vm_grads.py 1901-01-10 25.5 15 $R/test3a/hst_day-main $R/test3d/h
 * 10 日間は平衡には足りないが、西岸境界層は局所的に速く応答するので差はすでに現れている。
 * 領域平均 SSH の保存（`zos (#snap...)`）は 1e-16 cm 程度で、3a と同様に保たれる。
 
+### 例: netCDF 出力を加える（オプションの追加）
+
+再コンパイルが要る変更の例。`configure.in` にオプション `NETCDF` を加え、namelist で netCDF のヒストリー出力を
+指定して、3a と同じ 10 日間を実験名 `test3d-nc` で回す。物理設定は 3a と同じ。
+
+変更は 2 か所:
+
+1. `config_files/configure.in` の `OPTIONS` に `NETCDF` を加える（`README_Options.md` の `NETCDF` の項）。
+   ```
+   OPTIONS="SPHERICAL QUICKADVEC PARALLEL MPI2"          # 変更前
+   OPTIONS="SPHERICAL QUICKADVEC PARALLEL NETCDF MPI2"   # 変更後
+   ```
+2. ヒストリー出力を指定する namelist `NAMELIST.OGCM.MONITOR` に新しい `&nml_history` を加える
+   ```
+   &nml_history
+     name           = 'sea surface height',
+     file_base      = '../hst_day-main/nc_ssh',
+     suffix         = 'year',
+     interval_step  = -1,
+     l_netcdf       = .true.,
+   /
+   ```
+   各項目の詳細は `mricom/docs/README_Monitor.md`の `nml_history`を参照
+   | 変数名 | 内容 |
+   |---|---|
+   |`name` | 出力項目名 |
+   |`suffix` | ファイルのサフィックス。`year`とすると年を示す4桁の数字が付く |
+   |`interval_step`|出力間隔のステップ数で、dt=3600 秒なら 1 日 = 24。「-1」とすると1日毎に自動で設定される|
+   |`l_netcdf` | `.true.`とすると netCDF 形式で出力する |
+
+```bash
+cd ~/rect/exp
+sh clean.sh
+sh make_newexp.sh test3d-nc
+cd run
+sh setup.sh docker
+sed -i '/^OPTIONS=/s/PARALLEL/PARALLEL NETCDF/' ../config_files/configure.in   # 1.（エディタで直してもよい）
+grep '^OPTIONS' ../config_files/configure.in   # "... PARALLEL NETCDF MPI2" になっていることを確かめる
+sh compile.sh                # 再コンパイル（必須）
+sh link_restart.sh
+sh run_pre.sh                # NAMELIST.OGCM.MONITOR が作り直される
+cat >> NAMELIST.OGCM.MONITOR << 'END'    # 2. run_pre.sh の後に追記する
+&nml_history
+  name           = 'sea surface height',
+  file_base      = '../hst_day-main/nc_ssh',
+  suffix         = 'year',
+  interval_step  = -1,
+  l_netcdf       = .true.,
+/
+&nml_history
+  name           = 'x velocity',
+  file_base      = '../hst_day-main/nc_u',
+  suffix         = 'year',
+  interval_step  = -1,
+  l_netcdf       = .true.,
+/
+&nml_history
+  name           = 'y velocity',
+  file_base      = '../hst_day-main/nc_v',
+  suffix         = 'year',
+  interval_step  = -1,
+  l_netcdf       = .true.,
+/
+END
+sh run.sh                    # EXP succeed.
+sh mv_log.sh
+cd ..
+git checkout -- config_files   # テンプレートを元に戻す
+```
+
+* 第 1 層の速度ベクトルを描くために東西・南北速度（`'x velocity'`, `'y velocity'`）も加える。
+* `NAMELIST.OGCM.MONITOR` は `run_pre.sh` により `run/nml_monitor/` の断片から**毎回作り直す**
+  （[rect_workflow.md](rect_workflow.md)）。2. の追記は `run_pre.sh` を実行するたびにやり直す。
+* netCDF ライブラリのパス（`NETCDF_FFLAGS`/`NETCDF_INCLUDES`/`NETCDF_LDFLAGS`、`README_Options.md`）は、
+  `setup.sh docker`（`MACHINE=linux86-gfortran`）では自分で書かなくてよい。
+  コンパイルのログの先頭に `NETCDF_INCLUDES = -I/usr/include ...` のように表示される。
+  netCDF-Fortran ライブラリ（Debian 系なら `libnetcdff-dev`）は必要。
+* 出力は `hst_day-main/nc_ssh.1901` など（**拡張子 `.nc` は付かない**）。変数名は GrADS 版と同じ（`zos`、`uo`、`vo`）。
+  日平均の時刻は各日の 12 時（`1901-01-01T12:00` など）。
+* `configure.in` に `NETCDF` があると、`run_pre.sh` が作る標準の出力のうち水温・塩分も netCDF（`nc_t`・`nc_s`）になり、
+  GrADS 形式の `hs_t`・`hs_s` は出力されなくなる（`run/nml_monitor/hs_basic.nml` の水温・塩分が
+  接頭辞 `@prefix@` と `l_netcdf = .true.` を持つため）。`hs_ssh`・`hs_u`・`hs_v` などは GrADS 形式のまま残る。
+
+確認:
+
+```bash
+ncdump -h ~/rect/linkdir/result/test3d-nc/hst_day-main/nc_ssh.1901
+cd ~/mricom_user_pack/anl/rectangle
+R=../../link/data/rectangle/result
+python contour_ssh_vel_nc.py $R/test3d-nc/hst_day-main 1901-01-10 test3d-nc   # 3b の contour_ssh_vel_grads.py の netCDF 版
+```
+
+結果:
+* `nc_ssh` の `zos`・`nc_u` の `uo` は、3a の GrADS 出力 `hs_ssh`・`hs_u` と全格子で一致（差 0）し、図も 3b と同じになる。
+* リスタート出力 12 ファイルは 3a と `md5sum` で一致する。出力形式を変えても計算結果は変わらない。
+
 **完了の確認**:
 * [ ] パラメータ変更前後の違いを図で説明できる（例: 粘性 2 倍で西岸境界流が弱く幅広くなり、輸送は変わらない）
+* [ ] オプションを加えて再コンパイルし、その効果を確かめられる（例: netCDF 出力が GrADS 出力と一致する）
 
 
 落とし穴

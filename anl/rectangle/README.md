@@ -8,6 +8,7 @@ MRI.COMテスト用矩形海モデル
 * contour_ssh.py       - SSH分布を描く
 * contour_ssh_um_grads.py  - SSH分布と鉛直積分速度ベクトルを描く（GrADS形式、標準設定の出力用）
 * contour_ssh_vel_grads.py - SSH分布と第1層の速度ベクトルを描く（GrADS形式、標準設定の出力用）
+* contour_ssh_vel_nc.py    - 同上（netCDF形式、change_option.sh netcdf の出力用）
 * contour_t.py         - 水温水平分布を描く
 * contour_t_section.py - 水温鉛直断面分布を描く
 * make_ave-ssh.py      - 時間平均値を求める (SSH)
