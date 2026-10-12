@@ -49,6 +49,7 @@ namelist 作成支援もこの一部として、各ステップからリファ�
 | [input-data.md](input-data.md) | 入力データ（格子・地形・強制・レストア）のファイル形式と単位 | 前処理（`prep/`）で入力ファイルを作るとき |
 | [namelist-reference.md](namelist-reference.md) | `NAMELIST.OGCM` の主要グループの解説とレビュー用チェックリスト | namelistを作る／レビューするとき |
 | [namelist-examples/](namelist-examples/README.md) | 動作実績のあるnamelistの実例 | namelistを作るときの「型」として |
+| [configure.in-example/](configure.in-example/) | `configure.in` のビルド設定（コンパイラ・MPI）の例 | 新しい計算機でコンパイル設定を書くとき |
 
 
 AIへの頼み方（例）

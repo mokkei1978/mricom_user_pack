@@ -20,21 +20,26 @@ cd ~/rect/exp
 sh clean.sh                  # 前回の作業ファイルを掃除
 sh make_newexp.sh test3a     # 実験名 test3a。linkdir/result/test3a/ に出力先を作りリンクを張る
 cd run
-sh setup.sh docker           # 一般の Linux + gfortran + Open MPI ならこれ（下記）
+# sh setup.sh docker         # test_exp.sh にはあるが、Step 2 で済ませたので実行しない（下記）
 sh compile.sh                # ../src/ogcm ができる
 # run.conf を確認（最初は既定のまま: 10 日、dt=3600 秒、初期値 main.23）
 sh link_restart.sh
-sh run_pre.sh
-sh run.sh                    # 最後に "EXP succeed."
+sh run_pre.sh                # NAMELIST.OGCM などを作り、ogcm を run/ にコピー
+ulimit -s unlimited          # スタックサイズの制限を外す
+mpirun -np 4 ./ogcm          # 実行（4 = NPARTX×NPARTY）
+sh run_post.sh               # 成否の判定。最後に "EXP succeed."
 sh mv_log.sh                 # 標準出力などを log/ へ
 ```
 
-* マシン設定名は `run/machine/` 以下から選ぶ。`docker` は `MACHINE=linux86-gfortran`、
-  `FFLAGS="-mcmodel=large -fconvert=big-endian -O3 -fopenmp"` を `configure.in` に追記し、
-  `mpirun -np 4`（OpenMP 2 スレッド）で実行する。Docker 外の普通の Linux でもそのまま使える。
-  `gfortran` は気象研内サーバ用（`MACHINE=mri-ogsv009-gfortran`）。
+* `test_exp.sh` はマシン環境の設定 `sh setup.sh docker` を実行するが、
+  ビルド設定は [Step 2](02-environment.md)「モデル用ビルド設定」で済ませたので、ここでは実行しない。
+  重ねて実行すると `configure.in` に設定が重複して追記される。
+* `test_exp.sh` は実行を `sh run.sh`（`setup.sh` が `run/machine/docker/run.sh` から置くスクリプト）で行うが、
+  ここでは中身のコマンド（`ulimit` 〜 `run_post.sh`）を直接打つ。
+* `mpirun -np` の数は `configure.in` の `NPARTX×NPARTY`（2×2 = 4）と一致させる。
+* `ulimit` の設定はシェルを開き直すと消える。以降の節では同じシェルで続けるものとして書く。
 * 実験名を毎回変えれば過去の結果を上書きしない。
-* 実績（4 コア, gfortran 14.2.0, Open MPI 5.0.7）: `compile.sh` 約 30 秒、10 日積分（240 step）約 10 秒。
+* 実績（4 コア, gfortran 14.2.0, Open MPI 5.0.7）: `compile.sh` 約 30 秒、10 日積分（240 step）約 5 秒。
 
 **完了の確認**:
 
@@ -45,7 +50,7 @@ sh mv_log.sh                 # 標準出力などを log/ へ
   ```bash
   cd ~/rect/exp
   find restart-main/ -type f -name 'rs_*' | sort | xargs md5sum > md5_run1.txt
-  # run/ で link_restart.sh → run_pre.sh → run.sh をもう一度
+  # run/ で link_restart.sh → run_pre.sh → mpirun -np 4 ./ogcm → run_post.sh をもう一度
   md5sum -c md5_run1.txt
   ```
   (`exp/test-system/`にある`md5sum.txt` は気象研究所内の開発に用いられる。ユーザーは使わない。)
@@ -132,7 +137,8 @@ namelist テンプレートを 4 か所変える（`link_restart.sh` は使わ�
 ```bash
 cd run
 sh run_pre.sh
-sh run.sh                    # EXP succeed.
+mpirun -np 4 ./ogcm
+sh run_post.sh               # EXP succeed.
 sh mv_log.sh
 cd ..
 git checkout -- run/namelist # テンプレートを初回の設定に戻す
@@ -185,16 +191,16 @@ cd ~/rect/exp
 sh clean.sh
 sh make_newexp.sh test3d
 cd run
-sh setup.sh docker
 sed -i 's/visc_horz_cm2ps *= 2.5d8/visc_horz_cm2ps               = 5.0d8/' namelist/NAMELIST-main.in
 sh compile.sh
 sh link_restart.sh
 sh run_pre.sh
 grep -A1 nml_baroclinic_visc_horz NAMELIST.OGCM   # 5.0d8 になっていることを確かめる
-sh run.sh                    # EXP succeed.
+mpirun -np 4 ./ogcm
+sh run_post.sh               # EXP succeed.
 sh mv_log.sh
 cd ..
-git checkout -- run/namelist config_files   # テンプレートを元に戻す
+git checkout -- run/namelist   # テンプレートを元に戻す
 ```
 
 3b の図（`contour_ssh_um_grads.py`）に加えて、西岸境界流を横切る断面で鉛直積分南北速度 `vm` を重ねて描く:
@@ -258,7 +264,6 @@ cd ~/rect/exp
 sh clean.sh
 sh make_newexp.sh test3d-nc
 cd run
-sh setup.sh docker
 sed -i '/^OPTIONS=/s/PARALLEL/PARALLEL NETCDF/' ../config_files/configure.in   # 1.（エディタで直してもよい）
 grep '^OPTIONS' ../config_files/configure.in   # "... PARALLEL NETCDF MPI2" になっていることを確かめる
 sh compile.sh                # 再コンパイル（必須）
@@ -287,17 +292,20 @@ cat >> NAMELIST.OGCM.MONITOR << 'END'    # 2. run_pre.sh の後に追記する
   l_netcdf       = .true.,
 /
 END
-sh run.sh                    # EXP succeed.
+mpirun -np 4 ./ogcm
+sh run_post.sh               # EXP succeed.
 sh mv_log.sh
 cd ..
-git checkout -- config_files   # テンプレートを元に戻す
+sed -i '/^OPTIONS=/s/ NETCDF//' config_files/configure.in   # OPTIONS を元に戻す
 ```
+
+* ここで `git checkout -- config_files` を使うと、Step 2 で加えたビルド設定も消える。
 
 * 第 1 層の速度ベクトルを描くために東西・南北速度（`'x velocity'`, `'y velocity'`）も加える。
 * `NAMELIST.OGCM.MONITOR` は `run_pre.sh` により `run/nml_monitor/` の断片から**毎回作り直す**
   （[rect_workflow.md](rect_workflow.md)）。2. の追記は `run_pre.sh` を実行するたびにやり直す。
 * netCDF ライブラリのパス（`NETCDF_FFLAGS`/`NETCDF_INCLUDES`/`NETCDF_LDFLAGS`、`README_Options.md`）は、
-  `setup.sh docker`（`MACHINE=linux86-gfortran`）では自分で書かなくてよい。
+  `MACHINE=linux86-gfortran`（[Step 2](02-environment.md)）では自分で書かなくてよい。
   コンパイルのログの先頭に `NETCDF_INCLUDES = -I/usr/include ...` のように表示される。
   netCDF-Fortran ライブラリ（Debian 系なら `libnetcdff-dev`）は必要。
 * 出力は `hst_day-main/nc_ssh.1901` など（**拡張子 `.nc` は付かない**）。変数名は GrADS 版と同じ（`zos`、`uo`、`vo`）。
@@ -327,13 +335,12 @@ python contour_ssh_vel_nc.py $R/test3d-nc/hst_day-main 1901-01-10 test3d-nc   # 
 落とし穴
 --------
 
-* `setup.sh` は `config_files/configure.in*` を書き換える。
-  実験後に元に戻すなら `git checkout -- config_files`。
+* `config_files/configure.in` には [Step 2](02-environment.md) のビルド設定が入っている。
+  `git checkout -- config_files`（や `git checkout .`）で戻すとそれも消えるので、Step 2 の追記をやり直す。
 * `setup.sh`/`change_option.sh` を何度も実行すると、`OPTIONS` やnamelist断片が**重複して追記**される。
-  やり直すときは `git checkout .` で戻してから実行し直す。
 * 格子点数（`IMUT`/`JMUT`/`KM`）はコンパイル時設定。地形・層厚・強制データのサイズと一致させる。
   層厚ファイルの `km` と `KM` が食い違うとエラー。
-* MPI分割数 `NPARTX×NPARTY` と `run.sh` の `mpirun -np` を一致させる。
+* MPI分割数 `NPARTX×NPARTY` と `mpirun -np` の数を一致させる。
 * `period_day` を空にするとデバッグ用の12ステップ積分になる（出力間隔も1ステップ単位になる）。
 * 単位系は基本的に **cgs**（cm, g, s）。ただし海氷・海面フラックスなど一部の表層過程は **MKS**
   （`README_First.md` Sec.2.2）。パラメータ名の接尾辞（`_cm`, `_cm2ps`, `_sec`, `_deg`）で単位を確認する。

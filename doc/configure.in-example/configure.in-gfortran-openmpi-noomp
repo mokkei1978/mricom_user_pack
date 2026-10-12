@@ -1,0 +1,7 @@
+#!/bin/sh
+# MRI.COM ビルド設定: gfortran + OpenMPI（OpenMP なし）
+
+MACHINE=linux86-gfortran
+FFLAGS="-mcmodel=large -fconvert=big-endian -O3"
+LDFLAGS="-mcmodel=large"
+

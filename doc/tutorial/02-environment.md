@@ -3,7 +3,7 @@ Step 2: 実行環境の構築と確認
 
 **目標**: Fortran コンパイラ・MPI・ライブラリが MRI.COM / MXE の要求どおりに動くことを確かめる。
 
-**前提**: [Step 1](01-get.md) で MRICOM-rect を取得済み。
+**前提**: [Step 1](01-get.md) で MRICOM-rect を取得済み。計算機に Fortran コンパイラと MPI がインストール済み。
 
 
 確認するもの
@@ -59,7 +59,57 @@ make
 
 `exp/config_files/configure.in` にMPI並列Fortranコンパイル設定を記述する。
 
-<!-- TODO: gfortran + MPI の解説付きサンプルを加える -->
+ビルド設定の書き方は 2 通りある（`README_First.md` 3.1 節、`README_Advanced.md` 1 節）。
+
+1. **コンパイル方法を直接指定する**: 次の項目を自分で書く。
+   ```sh
+   F90=        # Fortran コンパイラ（MPI 用のラッパー。例: mpif90）
+   FFLAGS=     # コンパイルオプション
+   INCLUDES=   # ライブラリ指定（MPI ライブラリを含む）
+   LDFLAGS=    # リンクオプション
+   POSTFC=     # コンパイル後の処理コマンド
+   ```
+2. **`MACHINE` で MRI.COM の推奨設定を使う**: MRI.COM の `machines/` にある設定名を指定する。
+   gfortran + Open MPI であれば `MACHINE=linux86-gfortran` が使える。
+   ```sh
+   MACHINE=linux86-gfortran
+   ```
+   `linux86-gfortran` では次が設定される。
+   ```sh
+   F90=mpif90
+   FFLAGS="-mcmodel=large -ffree-line-length-none -fconvert=big-endian -O3"
+   INCLUDES="-I."
+   LDFLAGS="-mcmodel=large"
+   ```
+
+MRICOM-rect（gfortran + Open MPI）では、`configure.in` の末尾に次を加える。
+
+```bash
+cd ~/rect/exp
+cat >> config_files/configure.in << 'END'
+
+MACHINE=linux86-gfortran
+FFLAGS="-mcmodel=large -fconvert=big-endian -O3"
+LDFLAGS="-mcmodel=large"
+END
+```
+
+* `MACHINE` と `FFLAGS` などを両方書いたときにどちらが優先されるかは README に記載なし。
+  上の組み合わせで [Step 3a](03-rectangle.md) が動くことは確かめてある。
+* `-fconvert=big-endian`: 入出力ファイルをビッグエンディアンで読み書きする（rectangle_data はビッグエンディアン）。
+* MPI 分割数は `configure.in` の `NPARTX=2`, `NPARTY=2`（計 4）。実行時の `mpirun -np 4`（[Step 3a](03-rectangle.md)）と一致させる。
+* `configure.in` は git 管理下のファイル。`git checkout -- config_files` をするとこの設定も消えるので、やり直すときは上を再実行する。
+* OpenMP（`-fopenmp`）はここでは使わない（MPI 並列のみ）。OpenMP による高速化は別のチュートリアルで扱う予定。
+  `-fopenmp` の有無で Step 3a のリスタート出力は変わらない（ビット一致を確認）。
+* MRICOM-rect の `run/setup.sh docker` は、上に `-fopenmp` を加えた設定を `config_files/configure.in*` すべてに追記する
+  （あわせて `run/run.sh` も置く）。チュートリアルでは使わない。
+
+ビルド設定の例は [../configure.in-example/](../configure.in-example/) にある（`configure.in` の末尾に加える部分だけ）。
+
+| ファイル | 環境 |
+|---|---|
+| [configure.in-gfortran-openmpi-noomp](../configure.in-example/configure.in-gfortran-openmpi-noomp) | gfortran + Open MPI（上の設定と同じ） |
+| [configure.in-gfortran-openmpi](../configure.in-example/configure.in-gfortran-openmpi) | gfortran + Open MPI + OpenMP（上の設定に `-fopenmp` を加えたもの） |
 
 
 Python 解析環境
@@ -109,6 +159,7 @@ MRICOM-rect の `docker/README.md`、mxe-docker の README を参照。
 --------
 
 * [ ] `setting/macros.make` が作られ、`lib/` の make が通る
+* [ ] `exp/config_files/configure.in` にビルド設定を加えた
 * [ ] Python 解析環境の import 確認が `ok` になる
 
 動作実績（Debian 13）: gfortran 14.2.0、Open MPI 5.0.7、netCDF-Fortran 4.5.4 で [Step 3a](03-rectangle.md) が通った。Python は上表のライブラリを入れた venv で Step 3b が描けた。
