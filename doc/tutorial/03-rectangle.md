@@ -15,7 +15,6 @@ Step 3: 矩形海モデルを動かす（MRICOM-rect をそのまま使う）
 手順は統合テスト `exp/test-system/test_exp.sh` の中身と同じ（コメント付きで読みやすいので一読するとよい）。
 
 ```bash
-# (最初に 1 回) リポジトリ直下で Setup.sh を実行し setting/macros.make を作る
 cd ~/rect/exp
 sh clean.sh                  # 前回の作業ファイルを掃除
 sh make_newexp.sh test3a     # 実験名 test3a。linkdir/result/test3a/ に出力先を作りリンクを張る
@@ -181,10 +180,10 @@ namelist を編集するときは [../namelist-reference.md](../namelist-referen
 
 ### 例: 水平粘性を 2 倍にする
 
-標準設定の運動量の水平粘性は `NAMELIST-main.in` の `&nml_baroclinic_visc_horz/visc_horz_cm2ps = 2.5d8`
-（ラプラシアン型。`OPTIONS` に `BIHARMONIC`/`VISBIHARM` が無いため。`README_Namelist.md`）。
-順圧モードの粘性 `&nml_barotropic_visc_horz` はオプション `FSVISC` のときだけ使うもので、標準設定では使わない。
+標準設定の運動量の水平粘性は `NAMELIST-main.in` の `&nml_baroclinic_visc_horz/visc_horz_cm2ps = 2.5d8`である。
 これを `5.0d8` にして、3a と同じ 10 日間を新しい実験名 `test3d` で回す。
+（ラプラシアン型。`OPTIONS` に `BIHARMONIC`/`VISBIHARM` が無いため。）
+（順圧モードの粘性 `&nml_barotropic_visc_horz` はオプション `FSVISC` のときだけ使うもので、標準設定では使わない。）
 
 ```bash
 cd ~/rect/exp
@@ -233,6 +232,7 @@ python section_vm_grads.py 1901-01-10 25.5 15 $R/test3a/hst_day-main $R/test3d/h
 
 再コンパイルが要る変更の例。`configure.in` にオプション `NETCDF` を加え、namelist で netCDF のヒストリー出力を
 指定して、3a と同じ 10 日間を実験名 `test3d-nc` で回す。物理設定は 3a と同じ。
+Step 2 でnetCDF-Fortranの環境設定が出来ていることを前提とする。
 
 変更は 2 か所:
 
@@ -300,14 +300,14 @@ sed -i '/^OPTIONS=/s/ NETCDF//' config_files/configure.in   # OPTIONS を元に�
 ```
 
 * ここで `git checkout -- config_files` を使うと、Step 2 で加えたビルド設定も消える。
-
 * 第 1 層の速度ベクトルを描くために東西・南北速度（`'x velocity'`, `'y velocity'`）も加える。
 * `NAMELIST.OGCM.MONITOR` は `run_pre.sh` により `run/nml_monitor/` の断片から**毎回作り直す**
   （[rect_workflow.md](rect_workflow.md)）。2. の追記は `run_pre.sh` を実行するたびにやり直す。
 * netCDF ライブラリのパス（`NETCDF_FFLAGS`/`NETCDF_INCLUDES`/`NETCDF_LDFLAGS`、`README_Options.md`）は、
   `MACHINE=linux86-gfortran`（[Step 2](02-environment.md)）では自分で書かなくてよい。
   コンパイルのログの先頭に `NETCDF_INCLUDES = -I/usr/include ...` のように表示される。
-  netCDF-Fortran ライブラリ（Debian 系なら `libnetcdff-dev`）は必要。
+  netCDF-Fortran ライブラリ（Debian 系なら `libnetcdff-dev`）は必要。準備と確認、パスを指定する方法は
+  [Step 2](02-environment.md)「Fortran で netCDF ライブラリを使う」。
 * 出力は `hst_day-main/nc_ssh.1901` など（**拡張子 `.nc` は付かない**）。変数名は GrADS 版と同じ（`zos`、`uo`、`vo`）。
   日平均の時刻は各日の 12 時（`1901-01-01T12:00` など）。
 * `configure.in` に `NETCDF` があると、`run_pre.sh` が作る標準の出力のうち水温・塩分も netCDF（`nc_t`・`nc_s`）になり、

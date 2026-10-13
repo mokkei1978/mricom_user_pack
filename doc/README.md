@@ -50,6 +50,8 @@ namelist 作成支援もこの一部として、各ステップからリファ�
 | [namelist-reference.md](namelist-reference.md) | `NAMELIST.OGCM` の主要グループの解説とレビュー用チェックリスト | namelistを作る／レビューするとき |
 | [namelist-examples/](namelist-examples/README.md) | 動作実績のあるnamelistの実例 | namelistを作るときの「型」として |
 | [configure.in-example/](configure.in-example/) | `configure.in` のビルド設定（コンパイラ・MPI）の例 | 新しい計算機でコンパイル設定を書くとき |
+| [mxe-sample/](mxe-sample/) | MXE の `setting/macros.make` の例（解説付き） | MXE ツールのコンパイル設定を書くとき |
+| [fortran/](fortran/) | 環境確認用の Fortran テストプログラム（netCDF-Fortran の `nctest.f90`） | Step 2 でライブラリが使えるか確かめるとき |
 
 
 AIへの頼み方（例）

@@ -1,0 +1,21 @@
+# MXE macros.make for gfortran, netCDF
+#   setting/macros.make にコピーして使う（MXE の make が読み込む）。詳細は setting/README-MXE.md
+#   動作実績: Debian 13, gfortran 14.2.0, netCDF-Fortran 4.5.4 で lib/, prep/DZ, prep/rectangle の make が通った
+
+# コンパイラ（MXE ツールは MPI を使わないので mpif90 でなくてよい）
+F90     = gfortran
+
+# リンク: netCDF-Fortran ライブラリ（nf-config --flibs で確認）
+#   anl/tide, anl/spectrum など FFTW・LAPACK を使うツールでは -lfftw3 -llapack を加える
+LDFLAGS = -lnetcdff
+
+# コンパイル:
+#   -mcmodel=large        大きな配列を扱うため
+#   -fconvert=big-endian  入出力をビッグエンディアンで（MRI.COM のデータと合わせる）
+#   -DMXE_NETCDF          MXE の netCDF 対応部分を有効にする（setting/README-MXE.md）
+FFLAGS  = -mcmodel=large -fconvert=big-endian -O3 -DMXE_NETCDF
+
+# netcdf.mod の場所（nf-config --fflags で確認）
+INCLUDES= -I/usr/include
+
+AR      = ar rv
