@@ -13,6 +13,7 @@ Step 2: 実行環境の構築と確認
 |---|---|
 | Fortran コンパイラ、推奨オプション等 | サーバー管理者に聞く。例えば `gfortran --version`で確認する |
 | MPI並列コンパイル、実行方法 | 管理者に聞く。例えば `mpif90 --version`, `mpirun --version` で確認する |
+| `make`, `git`, `bc` | `command -v make git bc`（パスが表示されないものが未インストール）。Debian の最小構成には入っていないので、無ければ `sudo apt install make git bc`。`make` は MXE ライブラリとモデルのビルド、`git` は取得と `configure.in` の復元、`bc` は MRICOM-rect の `run_pre.sh` が使う |
 | Fortran で netCDFライブラリを使う方法（任意） | Fortranコンパイル時のオプション。 `nf-config`で確認できる |
 | Python 解析環境 (モデル実行には不要) | 各自の環境で下記「Python 解析環境」のライブラリをインストールする |
 
@@ -253,3 +254,13 @@ MRICOM-rect の `docker/README.md`、mxe-docker の README を参照。
 --------
 
 <!-- 経験したら追記 -->
+
+
+AIへの頼み方（例）
+--------
+
+```
+doc/tutorial/02-environment.md を読んで、Step 3 の矩形海を（Docker ではなく）このマシンで
+コンパイル・実行するのに足りないツール・ライブラリを、コマンドを実行して確かめて教えて。
+解析用の Python 環境は除く。
+```
