@@ -1,0 +1,356 @@
+Step 3: 矩形海モデルを動かす（MRICOM-rect をそのまま使う）
+========
+
+**目標**: 取得した MRICOM-rect を変更せずに動かし、結果を見て、
+設定を少しずつ変えたときの応答を体験する。
+
+**前提**: [Step 2](02-environment.md) の環境確認が済んでいる。
+
+手順の詳細は [rect_workflow.md](rect_workflow.md)（`exp/run/` の各スクリプト）を参照。
+
+
+3a. そのまま回す
+--------
+
+手順は統合テスト `exp/test-system/test_exp.sh` の中身と同じ（コメント付きで読みやすいので一読するとよい）。
+
+```bash
+cd ~/rect/exp
+sh clean.sh                  # 前回の作業ファイルを掃除
+sh make_newexp.sh test3a     # 実験名 test3a。linkdir/result/test3a/ に出力先を作りリンクを張る
+cd run
+# sh setup.sh docker         # test_exp.sh にはあるが、Step 2 で済ませたので実行しない（下記）
+sh compile.sh                # ../src/ogcm ができる
+# run.conf を確認（最初は既定のまま: 10 日、dt=3600 秒、初期値 main.23）
+sh link_restart.sh
+sh run_pre.sh                # NAMELIST.OGCM などを作り、ogcm を run/ にコピー
+ulimit -s unlimited          # スタックサイズの制限を外す
+mpirun -np 4 ./ogcm          # 実行（4 = NPARTX×NPARTY）
+sh run_post.sh               # 成否の判定。最後に "EXP succeed."
+sh mv_log.sh                 # 標準出力などを log/ へ
+```
+
+* `test_exp.sh` はマシン環境の設定 `sh setup.sh docker` を実行するが、
+  ビルド設定は [Step 2](02-environment.md)「モデル用ビルド設定」で済ませたので、ここでは実行しない。
+  重ねて実行すると `configure.in` に設定が重複して追記される。
+* `test_exp.sh` は実行を `sh run.sh`（`setup.sh` が `run/machine/docker/run.sh` から置くスクリプト）で行うが、
+  ここでは中身のコマンド（`ulimit` 〜 `run_post.sh`）を直接打つ。
+* `mpirun -np` の数は `configure.in` の `NPARTX×NPARTY`（2×2 = 4）と一致させる。
+* `ulimit` の設定はシェルを開き直すと消える。以降の節では同じシェルで続けるものとして書く。
+* 実験名を毎回変えれば過去の結果を上書きしない。
+* 実績（4 コア, gfortran 14.2.0, Open MPI 5.0.7）: `compile.sh` 約 30 秒、10 日積分（240 step）約 5 秒。
+
+**完了の確認**:
+
+* [ ] `EXP succeed.` が出る
+* [ ] 標準出力で体積保存がほぼゼロ:
+  `grep "zos (#snap" log/OGCM-19010101-stdout.0000 | tail -3` → `1e-15 [cm]` 程度
+* [ ] 同じ設定で 2 回実行し、リスタートがビット一致する（md5sumを用いたハッシュ値チェック）:
+  ```bash
+  cd ~/rect/exp
+  find restart-main/ -type f -name 'rs_*' | sort | xargs md5sum > md5_run1.txt
+  # run/ で link_restart.sh → run_pre.sh → mpirun -np 4 ./ogcm → run_post.sh をもう一度
+  md5sum -c md5_run1.txt
+  ```
+  (`exp/test-system/`にある`md5sum.txt` は気象研究所内の開発に用いられる。ユーザーは使わない。)
+
+
+3b. 結果を見る
+--------
+
+* 出力（`hst_*-main/`）を本リポジトリの `lib/mricom.py`（`open_history()` / `open_grads()`）で読み、
+  `anl/` のスクリプトで描画する。
+* 出力変数の意味は `README_Monitor.md` の "Available outputs"を参照。
+* 標準設定のヒストリーは GrADS 形式（`hs_*.ctl` + `hs_*.1901`）。日平均が `hst_day-main/` に出る
+  （例: `hs_ssh` = `zos` [cm]、`hs_t` = `thetao`、`hs_u`/`hs_v` = `uo`/`vo`、`hs_sfc_um`/`hs_sfc_vm` = 鉛直積分速度 `um`/`vm` [cm^2/s]、`hs_wind` = `tauuo`/`tauvo`。
+  格子は 62×52、10 層）。
+
+最終10日目の SSH と速度ベクトルを描画する。まず鉛直積分した速度、次に第 1 層の速度を見る。
+
+```bash
+source ~/venv/bin/activate      # xarray, xgrads, cartopy, docopt を入れた Python 環境
+cd ~/mricom_user_pack/anl/rectangle
+D=../../link/data/rectangle/result/test3a/hst_day-main
+python contour_ssh_um_grads.py  $D 1901-01-10 test3a   # (1) SSH + 鉛直積分速度（hs_sfc_um/vm）→ temp.png
+python contour_ssh_vel_grads.py $D 1901-01-10 test3a   # (2) SSH + 第 1 層（10 m）の速度（hs_u/v）→ temp.png
+```
+
+出力はどちらも `temp.png`（上書きされる）なので、1 枚ずつ見る。
+
+1. **鉛直積分速度**: 南の亜熱帯循環（SSH 正、最大 +4 cm 程度、時計回り）と
+   北の亜寒帯循環（負、最小 −6 cm 程度、反時計回り）の二重ジャイア。
+   どちらも西岸に強化され、流れは SSH の等値線に沿う（地衡流）。
+2. **第 1 層の速度**: ジャイヤではなく、東西に一様な南北流の帯が目立つ
+   （10°N 付近で北向き約 16 cm/s、35°N 付近で南向き約 6 cm/s）。
+   風応力は東西成分のみ（南で東風、中緯度で西風）なので、これは風に直交する表層エクマン流で、
+   大きさも τ/(ρ f h) の見積もり（10.5°N、20 m 厚の層で約 15 cm/s）と合う。
+   第 1 層の矢印が SSH と合わないのは誤りではない。
+
+* `open_grads()` は GrADS の UNDEF（-9.99E+33、陸格子）を NaN にして返す。
+* `anl/rectangle/` の他のスクリプト（`contour_ssh.py` など）は netCDF 出力（`nc_*`）を前提にしている。
+  標準設定の出力をそのまま読むには `*_grads.py` を使うか、同じように `open_grads()` に書き換える。
+
+**完了の確認**:
+* [ ] SSH と鉛直積分速度の図で、西岸強化した二重ジャイアが見える
+* [ ] 第 1 層の速度がエクマン流でジャイアと向きが違う理由を説明できる
+
+
+3c. 継続実験（リスタートからの再開）
+--------
+
+長期積分は run を繰り返してつなぐ。3a の `test3a`（1/1〜1/10）の続きとして 1/11〜1/20 を回し、
+最初から 20 日間通して回した場合とビット一致することを確かめる。
+
+継続 run は **新しい実験名** (test3cとする)で行い、前 run のリスタートにリンクを張る。
+同じ実験名のまま回すと、ヒストリー（年ごとのファイル `hs_*.1901`）と
+`run/mv_log.sh` で移すログ（ファイル名が `OGCM-19010101-stdout.*` のまま）が前 run の分を上書きする。
+
+```bash
+cd ~/rect/exp
+sh clean.sh
+sh make_newexp.sh test3c
+ln -s ~/rect/linkdir/result/test3a/restart-main/rs_*.19010111000000 restart-main/
+```
+
+namelist テンプレートを 4 か所変える（`link_restart.sh` は使わない）:
+
+| ファイル | 設定 | 初回 (3a) | 継続 |
+|---|---|---|---|
+| `NAMELIST-common.in` | `&nml_run_ini` の `day` | `1` | `11`（前 run の終了時刻） |
+| `NAMELIST-common.in` | `&nml_run_ini_state/l_rst_LFAM3_in` | `.false.` | `.true.` |
+| `NAMELIST-common.in` | `&nml_vmix_run/l_rst_vmix_in` | `.false.` | `.true.` |
+| `NAMELIST-main.in` | `&nml_barotropic_run/l_rst_barotropic_dflx_in` | `.false.` | `.true.` |
+
+* `&nml_exp_start`（実験全体の開始日 1901/1/1）は変えない。`run.conf` の `period_day=10` もそのまま。
+* 読み込むリスタートは `rs_*.` + `nml_run_ini` の日時（ここでは `rs_t.19010111000000` など）。
+  標準出力の `Open  ../restart-main/rs_t.19010111000000` で確かめられる。
+* 初回の値が `.false.` なのは、初期値 `main.23` に前ステップ値（LFAM3）・鉛直混合係数・SSH 拡散フラックスの
+  リスタートが無いため（意味は `README_Restart.md` "Standard namelists"）。3a の run はこれらを出力しているので、
+  継続では `.true.` にして読む。
+* 強制は定常（`interval = -999`）なので `&nml_force_data` の `ifstart` は変えなくてよい。
+* test3aとディレクトリを変えずに実験して
+  ヒストリー出力を上書きしないためには、`run_pre.sh`で生成される
+  NAMELIST.OGCM.MONITORの `suffix`を`'day'`とするか削除する(デフォルトは'day')。
+* 標準ログ出力を上書きしないためには、`file_base_stdout` を`'19010121'`とする
+
+```bash
+cd run
+sh run_pre.sh
+mpirun -np 4 ./ogcm
+sh run_post.sh               # EXP succeed.
+sh mv_log.sh
+cd ..
+git checkout -- run/namelist # テンプレートを初回の設定に戻す
+```
+
+**比較用に 20 日間通して回す**: テンプレートは初回のまま、`run.conf` を `period_day=20` にして
+実験名 `test3a-20d` で 3a と同じ手順を踏む。終わったら両者の 1/21 0:00 のリスタートを比べる:
+
+```bash
+cd ~/rect/linkdir/result
+for f in test3a-20d/restart-main/rs_*.19010121000000; do
+  cmp -s $f test3c/restart-main/$(basename $f) && echo "same $f" || echo "DIFF $f"
+done
+```
+
+* `nml_run_ini` だけ変え、3 つのフラグを `.false.` のままにした継続 run → `EXP succeed.` になるが
+  結果は一致しない。
+  **エラーにならないので、フラグの戻し忘れに気づきにくい**。
+
+**完了の確認**:
+* [ ] 継続 run `test3c` が前 run のリスタート（`*.19010111000000`）を読んで `EXP succeed.` になる
+* [ ] 通し run `test3a-20d` と 1/21 のリスタートがビット一致する
+
+
+3d. 設定を変えてみる
+--------
+
+1 回に 1 つだけ変え、3b と同じ図で比較する。
+
+| 変える場所 | 例 | 再コンパイル |
+|---|---|---|
+| `run/run.conf` | 積分期間 `period_day`、時間刻み `dt_sec`、出力間隔 | 不要 |
+| `run/namelist/NAMELIST-*.in` | 粘性・拡散係数、風応力 | 不要 |
+| `config_files/configure.in` の `OPTIONS` | オプション追加（例: `NETCDF`、`HFLUX`）。対応する namelist も加える | 必要 |
+| `config_files/configure.in` | 格子数、MPI 分割 | 必要（入力データも作り直し → Step 4） |
+
+`run.conf`や`NAMELIST-*.in`を変えた場合は、`run_pre.sh`の再実行が必要。
+namelist を編集するときは [../namelist-reference.md](../namelist-reference.md) と
+[../namelist-examples/rectangle/](../namelist-examples/rectangle/README.md) を参照する。
+
+### 例: 水平粘性を 2 倍にする
+
+標準設定の運動量の水平粘性は `NAMELIST-main.in` の `&nml_baroclinic_visc_horz/visc_horz_cm2ps = 2.5d8`である。
+これを `5.0d8` にして、3a と同じ 10 日間を新しい実験名 `test3d` で回す。
+（ラプラシアン型。`OPTIONS` に `BIHARMONIC`/`VISBIHARM` が無いため。）
+（順圧モードの粘性 `&nml_barotropic_visc_horz` はオプション `FSVISC` のときだけ使うもので、標準設定では使わない。）
+
+```bash
+cd ~/rect/exp
+sh clean.sh
+sh make_newexp.sh test3d
+cd run
+sed -i 's/visc_horz_cm2ps *= 2.5d8/visc_horz_cm2ps               = 5.0d8/' namelist/NAMELIST-main.in
+sh compile.sh
+sh link_restart.sh
+sh run_pre.sh
+grep -A1 nml_baroclinic_visc_horz NAMELIST.OGCM   # 5.0d8 になっていることを確かめる
+mpirun -np 4 ./ogcm
+sh run_post.sh               # EXP succeed.
+sh mv_log.sh
+cd ..
+git checkout -- run/namelist   # テンプレートを元に戻す
+```
+
+3b の図（`contour_ssh_um_grads.py`）に加えて、西岸境界流を横切る断面で鉛直積分南北速度 `vm` を重ねて描く:
+
+```bash
+cd ~/mricom_user_pack/anl/rectangle
+R=../../link/data/rectangle/result
+python contour_ssh_um_grads.py $R/test3d/hst_day-main 1901-01-10 test3d
+python section_vm_grads.py 1901-01-10 25.5 15 $R/test3a/hst_day-main $R/test3d/hst_day-main
+```
+
+結果（10 日目）:
+
+| | test3a（2.5d8） | test3d（5.0d8） |
+|---|---|---|
+| SSH 最大 / 最小 [cm] | 4.32 / −6.80 | 4.11 / −6.46 |
+| 25.5°N の `vm` 最大 [10⁵ cm²/s] | 13.0（1.5°E） | 10.8（1.5°E） |
+| 25.5°N で `vm` が負に転じる経度 | 約 4.4°E | 約 5.3°E |
+| 25.5°N、0–5°E の北向き `vm` の和 | 34.8 | 33.3 |
+
+* ジャイアの形はほとんど変わらず、差は西岸境界流に現れる。
+  粘性を大きくすると西岸境界流が弱く・幅広くなり、北向き輸送の合計はほぼ同じ（−4%）。
+* これは Munk の西岸境界層（幅 δ = (A/β)^{1/3}）の予想と整合的。粘性 2 倍で幅は 2^{1/3} ≈ 1.26 倍。
+  断面で `vm` が負に転じる経度（4.4°E → 5.3°E、幅で約 1.2 倍）がこれに近い。
+  輸送の合計は内部領域のスベルドラップ輸送（風応力で決まる）を返す分なので、粘性に依らない。
+* 10 日間は平衡には足りないが、西岸境界層は局所的に速く応答するので差はすでに現れている。
+* 領域平均 SSH の保存（`zos (#snap...)`）は 1e-16 cm 程度で、3a と同様に保たれる。
+
+### 例: netCDF 出力を加える（オプションの追加）
+
+再コンパイルが要る変更の例。`configure.in` にオプション `NETCDF` を加え、namelist で netCDF のヒストリー出力を
+指定して、3a と同じ 10 日間を実験名 `test3d-nc` で回す。物理設定は 3a と同じ。
+Step 2 でnetCDF-Fortranの環境設定が出来ていることを前提とする。
+
+変更は 2 か所:
+
+1. `config_files/configure.in` の `OPTIONS` に `NETCDF` を加える（`README_Options.md` の `NETCDF` の項）。
+   ```
+   OPTIONS="SPHERICAL QUICKADVEC PARALLEL MPI2"          # 変更前
+   OPTIONS="SPHERICAL QUICKADVEC PARALLEL NETCDF MPI2"   # 変更後
+   ```
+2. ヒストリー出力を指定する namelist `NAMELIST.OGCM.MONITOR` に新しい `&nml_history` を加える
+   ```
+   &nml_history
+     name           = 'sea surface height',
+     file_base      = '../hst_day-main/nc_ssh',
+     suffix         = 'year',
+     interval_step  = -1,
+     l_netcdf       = .true.,
+   /
+   ```
+   各項目の詳細は `mricom/docs/README_Monitor.md`の `nml_history`を参照
+   | 変数名 | 内容 |
+   |---|---|
+   |`name` | 出力項目名 |
+   |`suffix` | ファイルのサフィックス。`year`とすると年を示す4桁の数字が付く |
+   |`interval_step`|出力間隔のステップ数で、dt=3600 秒なら 1 日 = 24。「-1」とすると1日毎に自動で設定される|
+   |`l_netcdf` | `.true.`とすると netCDF 形式で出力する |
+
+```bash
+cd ~/rect/exp
+sh clean.sh
+sh make_newexp.sh test3d-nc
+cd run
+sed -i '/^OPTIONS=/s/PARALLEL/PARALLEL NETCDF/' ../config_files/configure.in   # 1.（エディタで直してもよい）
+grep '^OPTIONS' ../config_files/configure.in   # "... PARALLEL NETCDF MPI2" になっていることを確かめる
+sh compile.sh                # 再コンパイル（必須）
+sh link_restart.sh
+sh run_pre.sh                # NAMELIST.OGCM.MONITOR が作り直される
+cat >> NAMELIST.OGCM.MONITOR << 'END'    # 2. run_pre.sh の後に追記する
+&nml_history
+  name           = 'sea surface height',
+  file_base      = '../hst_day-main/nc_ssh',
+  suffix         = 'year',
+  interval_step  = -1,
+  l_netcdf       = .true.,
+/
+&nml_history
+  name           = 'x velocity',
+  file_base      = '../hst_day-main/nc_u',
+  suffix         = 'year',
+  interval_step  = -1,
+  l_netcdf       = .true.,
+/
+&nml_history
+  name           = 'y velocity',
+  file_base      = '../hst_day-main/nc_v',
+  suffix         = 'year',
+  interval_step  = -1,
+  l_netcdf       = .true.,
+/
+END
+mpirun -np 4 ./ogcm
+sh run_post.sh               # EXP succeed.
+sh mv_log.sh
+cd ..
+sed -i '/^OPTIONS=/s/ NETCDF//' config_files/configure.in   # OPTIONS を元に戻す
+```
+
+* ここで `git checkout -- config_files` を使うと、Step 2 で加えたビルド設定も消える。
+* 第 1 層の速度ベクトルを描くために東西・南北速度（`'x velocity'`, `'y velocity'`）も加える。
+* `NAMELIST.OGCM.MONITOR` は `run_pre.sh` により `run/nml_monitor/` の断片から**毎回作り直す**
+  （[rect_workflow.md](rect_workflow.md)）。2. の追記は `run_pre.sh` を実行するたびにやり直す。
+* netCDF ライブラリのパス（`NETCDF_FFLAGS`/`NETCDF_INCLUDES`/`NETCDF_LDFLAGS`、`README_Options.md`）は、
+  `MACHINE=linux86-gfortran`（[Step 2](02-environment.md)）では自分で書かなくてよい。
+  コンパイルのログの先頭に `NETCDF_INCLUDES = -I/usr/include ...` のように表示される。
+  netCDF-Fortran ライブラリ（Debian 系なら `libnetcdff-dev`）は必要。準備と確認、パスを指定する方法は
+  [Step 2](02-environment.md)「Fortran で netCDF ライブラリを使う」。
+* 出力は `hst_day-main/nc_ssh.1901` など（**拡張子 `.nc` は付かない**）。変数名は GrADS 版と同じ（`zos`、`uo`、`vo`）。
+  日平均の時刻は各日の 12 時（`1901-01-01T12:00` など）。
+* `configure.in` に `NETCDF` があると、`run_pre.sh` が作る標準の出力のうち水温・塩分も netCDF（`nc_t`・`nc_s`）になり、
+  GrADS 形式の `hs_t`・`hs_s` は出力されなくなる（`run/nml_monitor/hs_basic.nml` の水温・塩分が
+  接頭辞 `@prefix@` と `l_netcdf = .true.` を持つため）。`hs_ssh`・`hs_u`・`hs_v` などは GrADS 形式のまま残る。
+
+確認:
+
+```bash
+ncdump -h ~/rect/linkdir/result/test3d-nc/hst_day-main/nc_ssh.1901
+cd ~/mricom_user_pack/anl/rectangle
+R=../../link/data/rectangle/result
+python contour_ssh_vel_nc.py $R/test3d-nc/hst_day-main 1901-01-10 test3d-nc   # 3b の contour_ssh_vel_grads.py の netCDF 版
+```
+
+結果:
+* `nc_ssh` の `zos`・`nc_u` の `uo` は、3a の GrADS 出力 `hs_ssh`・`hs_u` と全格子で一致（差 0）し、図も 3b と同じになる。
+* リスタート出力 12 ファイルは 3a と `md5sum` で一致する。出力形式を変えても計算結果は変わらない。
+
+**完了の確認**:
+* [ ] パラメータ変更前後の違いを図で説明できる（例: 粘性 2 倍で西岸境界流が弱く幅広くなり、輸送は変わらない）
+* [ ] オプションを加えて再コンパイルし、その効果を確かめられる（例: netCDF 出力が GrADS 出力と一致する）
+
+
+落とし穴
+--------
+
+* `config_files/configure.in` には [Step 2](02-environment.md) のビルド設定が入っている。
+  `git checkout -- config_files`（や `git checkout .`）で戻すとそれも消えるので、Step 2 の追記をやり直す。
+* `setup.sh`/`change_option.sh` を何度も実行すると、`OPTIONS` やnamelist断片が**重複して追記**される。
+* 格子点数（`IMUT`/`JMUT`/`KM`）はコンパイル時設定。地形・層厚・強制データのサイズと一致させる。
+  層厚ファイルの `km` と `KM` が食い違うとエラー。
+* MPI分割数 `NPARTX×NPARTY` と `mpirun -np` の数を一致させる。
+* `period_day` を空にするとデバッグ用の12ステップ積分になる（出力間隔も1ステップ単位になる）。
+* 単位系は基本的に **cgs**（cm, g, s）。ただし海氷・海面フラックスなど一部の表層過程は **MKS**
+  （`README_First.md` Sec.2.2）。パラメータ名の接尾辞（`_cm`, `_cm2ps`, `_sec`, `_deg`）で単位を確認する。
+* `exp/test.sh`（全オプションの統合テスト）は気象研究所での開発用。使わない。
+
+
+AIへの頼み方（例）
+--------
+
+```
+doc/tutorial/03-rectangle.md と doc/tutorial/rect_workflow.md を読んで、矩形海実験を dt=1800秒・30日間で
+回すために run.conf と namelist のどこを変えればよいか教えて。
+```
