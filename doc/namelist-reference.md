@@ -80,7 +80,9 @@ Namelistファイルの基本
 
 | グループ | 内容 | 状態 |
 |---|---|---|
-| `nml_baroclinic_visc_horz` | 傾圧粘性（水平） | 未 |
+| `nml_baroclinic_visc_horz` | 傾圧粘性（水平） | 済 |
+| `nml_smagor` | Smagorinsky 粘性（`SMAGOR`） | 済 |
+| `nml_hvisc_add` | ラプラシアン粘性の追加 | 済 |
 | `nml_tracer_diff_horz` | トレーサ水平拡散 | 未 |
 | `nml_barotropic_diff` | 順圧SSH拡散 | 未 |
 | `nml_visc_vert_bg`, `nml_diff_vert_bg`, `nml_vmbg3d` | 鉛直粘性・拡散（背景値） | 未 |
@@ -261,6 +263,83 @@ Namelistファイルの基本
 | dt_barotropic_sec | real(8) | 秒 | 順圧モードの時間刻み（`dt_sec` より短い） |
 
 
+詳細: 水平粘性グループ
+--------
+
+出典は `README_Namelist.md` と `README_Options.md`（horizontal mixing 節）。
+型は README に記載がないため「実数」などと書いている。
+
+関係するオプション（`README_Options.md`）:
+
+| オプション | 内容 | README 上の制約 |
+|---|---|---|
+| (なし) | ラプラシアン型の水平粘性 | - |
+| `BIHARMONIC` | 水平拡散 **と** 粘性を重調和型にする | - |
+| `VISBIHARM` | 水平粘性だけ重調和型にする（`TRCBIHARM` は拡散だけ） | - |
+| `SMAGOR` | Smagorinsky 型の粘性 | - |
+| `SMAGHD` | 拡散にも Smagorinsky 型を使う | `SMAGOR` と併用 |
+| `VIS9P` | 粘性の計算に 9 点を使う（既定は 5 点） | - |
+| `VISANISO` | 非等方粘性 | `VIS9P` と併用 |
+| `FSVISC` | 順圧モードに粘性をかける（`&nml_barotropic_visc_horz`） | - |
+
+### `&nml_baroclinic_visc_horz` (clinic_hvis.F90)
+
+| パラメータ | 型 | 単位 | デフォルト | 説明 |
+|---|---|---|---|---|
+| visc_horz_cm2ps | 実数 | cm²/s | README に記載なし | ラプラシアン型の水平粘性係数 |
+| visc_horz_cm4ps | 実数 | cm⁴/s | README に記載なし | 重調和型の水平粘性係数（`BIHARMONIC` か `VISBIHARM` のとき） |
+| file_visc_horz_2d | character | - | - | 粘性係数の 2 次元分布を与えるファイル（作成ツールは MXE `prep/MIX/`）。指定すると上の 2 つは無視される |
+| slip_factor | 実数 | - | README に記載なし | no-slip: 0.d0、slip: 1.d0（`VIS9P` のときだけ有効） |
+
+**依存・注意点**:
+- 単位は cm 系。m²/s から換算するときは 10⁴ 倍、m⁴/s からは 10⁸ 倍する。
+- 矩形海の標準値は `visc_horz_cm2ps = 2.5d8`（2.5×10⁴ m²/s）。これは粗い格子用で、細かい格子にそのまま流用すると大きすぎる。
+- `&nml_grid_size_change_mix_coefs` で `l_grid_size_change_mix_coefs = .true.` にすると、
+  格子幅 100 km を基準として、格子サイズに応じて粘性係数が変えられる（`SMAGOR` のときは対象外）。
+  どういうスケーリング則かは README に記載なし。
+- **TODO（README に記載なし）**: `visc_horz_cm4ps` の符号の約束（正で与えるか負で与えるか）。
+  技術報告第87号か開発者に確認する。
+
+**係数の目安**（README 由来ではない。海洋モデル一般の目安。中緯度、β ≈ 2×10⁻¹¹ m⁻¹s⁻¹ で計算）:
+- 下限その1: Munk 境界層の幅 δ_M = (A/β)^{1/3} が格子 1〜2 点以上になること。δ_M ≳ Δx とすると A ≳ βΔx³。
+- 下限その2: 格子レイノルズ数 UΔx/A ≲ 2。渦解像に近い格子では、ラプラシアン型でこれを満たすのは非現実的。
+  重調和型を使う主な理由はこれ。
+- 上限: 陽解法の安定条件。ラプラシアン型なら A < Δx²/(8Δt)。
+- Δx = 10 km の場合の目安:
+  - ラプラシアン型: 100〜500 m²/s（`visc_horz_cm2ps = 1.0d6`〜`5.0d6`）
+  - 重調和型: 10⁹〜10¹⁰ m⁴/s（10¹⁷〜10¹⁸ cm⁴/s）
+  - 小さめから始め、西岸境界や格子スケールのノイズを見ながら 3 倍程度ずつ上げる。
+
+### `&nml_smagor` (clinic_hvis.F90) — `SMAGOR` のとき
+
+| パラメータ | 型 | 単位 | デフォルト | 説明 |
+|---|---|---|---|---|
+| smagor_scale | 実数 | - | README に記載なし | スケーリング係数 |
+| smagor_diff_ratio | 実数 | - | README に記載なし | 粘性係数から拡散係数を決める比（`SMAGHD` のとき有効） |
+| l_smagor_nonzero_bg | logical | - | .false. | `.true.` で Smagorinsky 粘性に背景値を足す。背景値は `&nml_baroclinic_visc_horz` で与える |
+
+**依存・注意点**:
+- **TODO（README に記載なし）**: `SMAGOR` と `BIHARMONIC`/`VISBIHARM` を併用できるか。
+  README には排他とも併用可とも書かれていない（`SMAGHD` や `VISANISO` には併用条件が書かれているが、`SMAGOR` には何もない）。
+  併用した場合、次のどちらで扱われるかも不明。
+  - Smagorinsky 粘性がラプラシアン型か重調和型か
+  - `l_smagor_nonzero_bg` の背景値が `visc_horz_cm2ps` と `visc_horz_cm4ps` のどちらか
+  - 確かめ方: 両方のオプションを入れてコンパイル・起動し、エラーで止まるかを見る。
+    止まらなければ標準出力の粘性設定の表示を確認し、短い試験 run で単独設定と比べる。
+    確認できたらここに結果を書く。
+
+### `&nml_hvisc_add` (clinic_hvis.F90)
+
+| パラメータ | 型 | 単位 | デフォルト | 説明 |
+|---|---|---|---|---|
+| l_hvisc_add_harmonic | logical | - | .false. | `.true.` でラプラシアン粘性を追加する |
+| file_hvisc_harmonic | character | - | - | 追加するラプラシアン粘性の 2 次元分布 [cm²/s]（T 点） |
+
+**依存・注意点**:
+- 重調和型を全域にかけ、西岸や赤道付近など一部だけラプラシアンを足す、といった使い方を想定しているように見える。
+  ただし、どのオプションとの組み合わせが前提かは README に記載なし（TODO）。
+
+
 実例（動作実績のあるnamelist本体）
 --------
 
@@ -290,6 +369,8 @@ AIが生成したnamelistをレビューする際、最低限これだけは確�
 - [ ] `&nml_force_data` / `&nml_tracer_data` / `&nml_restart` など繰り返し可能なグループで
       変数の抜け漏れがないか
 - [ ] パス指定（`file_*`）が実行ディレクトリからの相対パスとして正しいか
+- [ ] 水平粘性係数の種類（`visc_horz_cm2ps` か `visc_horz_cm4ps` か）が `BIHARMONIC`/`VISBIHARM` の有無と合っているか。
+      値が格子幅に見合っているか（粗い格子の値の流用に注意）
 
 
 参照情報
