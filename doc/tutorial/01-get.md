@@ -20,6 +20,7 @@ Step 1: MRI.COM・MXE・MRICOM-rect の取得
 | MRI.COM 本体 | 4, 5 | https://github.com/mri-ocean/MRICOM （要申請） |
 | 本リポジトリ（mricom_user_pack） | 3〜5（解析） | https://github.com/mokkei1978/mricom_user_pack （公開） |
 | （任意）mxe-docker | 2 | https://github.com/mokkei1978/mxe-docker （Docker で環境を作る場合） |
+| 公開マニュアル（技術報告第87号, PDF） | 0〜5 | https://www.mri-jma.go.jp/Publish/Technical/DATA/VOL_87/tech_rep_mri-v5.pdf （公開。下記） |
 
 gitが使える環境であれば `git clone`コマンドでリポジトリを入手する。入手先URLは緑の「<code>」ボタンから、「ssh」を選ぶ。
 gitが使えなければ、GitHub webページから直接にダウンロードする。
@@ -38,6 +39,19 @@ MRICOM, MXE, MRICOM-rect の各リポジトリは非公開で、利用には次�
 了承までには数日かかる。
 
 申請が通るまでの間は [Step 0](00-about.md) の公開マニュアルを読み進めておくとよい。
+
+
+### 公開マニュアル
+
+気象研究所技術報告第87号「気象研究所共用海洋モデル第5版」（MRI.COM v5.0 対応、PDF 約 5 MB）は申請なしで入手できる。
+本リポジトリ (~/mricom_user_packに配置したとする) のスクリプトで `doc/manual/` に保存する:
+
+```
+sh ~/mricom_user_pack/doc/manual/get_manual.sh   # → doc/manual/tech_rep_mri-v5.pdf
+```
+
+PDF は git 管理しない（`.gitignore` の `*.pdf`）。
+手元に置いておくと、AI に該当章を読ませて質問できる。
 
 
 ### バージョンをそろえる
@@ -73,6 +87,7 @@ Step 4 で Step 3 の結果と比べるときは、この版の違いを念頭�
 --------
 
 * [ ] MRICOM-rect の `README.md` が読める（申請が通り clone できた）
+* [ ] `doc/manual/tech_rep_mri-v5.pdf` がある
 * [ ] 入力データディレクトリに `dz_cm.d`, `topo.d`, `rs_t.*`, `rs_s.*` などがある
 
 

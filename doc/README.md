@@ -51,6 +51,7 @@ namelist 作成支援もこの一部として、各ステップからリファ�
 | [namelist-examples/](namelist-examples/README.md) | 動作実績のあるnamelistの実例 | namelistを作るときの「型」として |
 | [configure.in-example/](configure.in-example/) | `configure.in` のビルド設定（コンパイラ・MPI）の例 | 新しい計算機でコンパイル設定を書くとき |
 | [mxe-sample/](mxe-sample/) | MXE の `setting/macros.make` の例（解説付き） | MXE ツールのコンパイル設定を書くとき |
+| [manual/](manual/) | 公開マニュアル（技術報告第87号）の PDF を取得するスクリプト `get_manual.sh`（PDF は git 管理外） | 物理・数値スキームを調べるとき（Step 1 で取得） |
 | [fortran/](fortran/) | 環境確認用の Fortran テストプログラム（netCDF-Fortran の `nctest.f90`） | Step 2 でライブラリが使えるか確かめるとき |
 
 
