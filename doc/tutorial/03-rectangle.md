@@ -12,6 +12,11 @@ Step 3: 矩形海モデルを動かす（MRICOM-rect をそのまま使う）
 3a. そのまま回す
 --------
 
+以下で使う `exp/*.sh`, `exp/run/*.sh` は、MRICOM-rect が**矩形海モデル用に作り込んだシェル・スクリプト**である。
+MRI.COM 本体の一部ではなく、ディレクトリ構成（`linkdir/`, `restart-main/` など）や
+`run.conf`・namelist テンプレートの書式もこのパッケージ独自のもの。
+中身は短いので、何をしているか一度読んでおくとよい（各スクリプトの説明は [rect_workflow.md](rect_workflow.md)）。
+
 手順は統合テスト `exp/test-system/test_exp.sh` の中身と同じ（コメント付きで読みやすいので一読するとよい）。
 
 ```bash
@@ -29,6 +34,23 @@ mpirun -np 4 ./ogcm          # 実行（4 = NPARTX×NPARTY）
 sh run_post.sh               # 成否の判定。最後に "EXP succeed."
 sh mv_log.sh                 # 標準出力などを log/ へ
 ```
+
+**新しい実験を行うたびに**、次の 5 つのスクリプトを上の順に実行する必要がある
+（3c, 3d でも同じ。どれかを忘れると、前の実験の出力を上書きしたり、前の実験の設定で回したりする）。
+
+| スクリプト | すること | 毎回必要な理由 |
+|---|---|---|
+| `exp/clean.sh` | `run/` の前回の作業ファイル（`NAMELIST.OGCM*`, `ogcm`, 標準出力など）と、`exp/` の出力先リンク `hst_*`, `restart-*` を消す | 前の実験のリンク・namelist が残ったままになるのを防ぐ |
+| `exp/make_newexp.sh 実験名` | `linkdir/result/実験名/` に出力先を作り、`exp/hst_*-main`, `exp/restart-main`, `run/log` からリンクを張る | 出力先は実験ごとに別。張り直さないと出力先が無いか、前の実験に書き込む |
+| `run/compile.sh` | `exp/src/` で `make clean; ./configure; make` を行い、モデル実行ファイル `src/ogcm` を作る | `configure.in`（オプション・格子数など）の変更を実行ファイルに反映する |
+| `run/link_restart.sh` | `run.conf` の `initial_main`（標準は `main.23`）の初期値 `rs*` へのリンクを `restart-main/` に張る | 新しい `restart-main/` は空なので、初期値を置き直す |
+| `run/run_pre.sh` | namelist テンプレート（`namelist/NAMELIST-*.in`）と `run.conf` から `NAMELIST.OGCM` などを作り、`src/ogcm` を `run/` にコピーする | `clean.sh` で消えるので作り直す。テンプレートや `run.conf` の変更もここで反映される |
+
+* `compile.sh` は、`configure.in` を変えていなくても念のため実行する（約 30 秒）。
+  `src/ogcm` は `clean.sh` では消えないので、前の実験で別の設定にした実行ファイルが残っていることがある。
+* 継続実験（3c）では、`link_restart.sh` の代わりに前の実験のリスタートへ手でリンクを張る。
+
+その他の注意:
 
 * `test_exp.sh` はマシン環境の設定 `sh setup.sh docker` を実行するが、
   ビルド設定は [Step 2](02-environment.md)「モデル用ビルド設定」で済ませたので、ここでは実行しない。
@@ -57,6 +79,17 @@ sh mv_log.sh                 # 標準出力などを log/ へ
 
 3b. 結果を見る
 --------
+
+モデルの出力は 2 種類ある。どちらも `make_newexp.sh` が作った `linkdir/result/実験名/` の下に出る。
+
+| 種類 | 用途 | 出力先 | 例（3a） |
+|---|---|---|---|
+| ヒストリー出力 | 解析用の時系列（日平均など） | `hst_day-main/`, `hst_hour-main/` | `hs_ssh.ctl` + `hs_ssh.1901` |
+| リスタート出力 | 継続実験のための、run の最後の瞬間の場 | `restart-main/` | `rs_t.19010111000000`（ファイル名の末尾は日時） |
+
+* `restart-main/` には、`link_restart.sh` でリンクを張った初期値（入力）も置かれる。
+* 出力先は `-main`, `-sub`, `-bay` の 3 組が作られるが、通常は `-main` にだけ出力される。
+  `-sub`, `-bay` はネスティングモデル（親モデルの中に子モデルを入れる構成）の子モデルの出力に使う。
 
 * 出力（`hst_*-main/`）を本リポジトリの `lib/mricom.py`（`open_history()` / `open_grads()`）で読み、
   `anl/` のスクリプトで描画する。
@@ -135,6 +168,7 @@ namelist テンプレートを 4 か所変える（`link_restart.sh` は使わ�
 
 ```bash
 cd run
+sh compile.sh                # configure.in は変えていないが、念のため
 sh run_pre.sh
 mpirun -np 4 ./ogcm
 sh run_post.sh               # EXP succeed.
@@ -165,7 +199,8 @@ done
 3d. 設定を変えてみる
 --------
 
-1 回に 1 つだけ変え、3b と同じ図で比較する。
+1 回に 1 つだけ設定を変え、3b と同じ図で比較する。
+どの設定を変えてもよいが、まずは下に示す例で試すと良い。
 
 | 変える場所 | 例 | 再コンパイル |
 |---|---|---|
@@ -177,6 +212,7 @@ done
 `run.conf`や`NAMELIST-*.in`を変えた場合は、`run_pre.sh`の再実行が必要。
 namelist を編集するときは [../namelist-reference.md](../namelist-reference.md) と
 [../namelist-examples/rectangle/](../namelist-examples/rectangle/README.md) を参照する。
+
 
 ### 例: 水平粘性を 2 倍にする
 

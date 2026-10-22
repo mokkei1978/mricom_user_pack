@@ -128,17 +128,19 @@ C 版の netCDF（`libnetcdf`）だけでは足りない。
 * スパコン・共用サーバー: `module load netcdf-fortran` などで使えることが多い。管理者に聞く。
 * `netcdf.mod` はコンパイラごとに形式が違う。**モデルと同じコンパイラ**（gfortran なら gfortran）で作られたものを使う。
 
+
 ### コンパイル方法を調べる: `nf-config`
 
 netCDF-Fortran に付属する `nf-config` が、コンパイル・リンクに必要なオプションを教えてくれる。
 
 ```bash
 nf-config --version   # netCDF-Fortran 4.5.4
-nf-config --fflags    # コンパイル時（netcdf.mod の場所）: -I/usr/include -I/usr/include
+nf-config --fflags    # コンパイル時（netcdf.mod の場所）: -I/usr/include
 nf-config --flibs     # リンク時: -L/usr/lib/x86_64-linux-gnu -lnetcdff -Wl,-z,relro -Wl,-z,now -lnetcdf -lnetcdf -lm
 ```
 
-（出力は Debian 13 の例。`nf-config` が見つからなければ netCDF-Fortran が入っていないか、パスが通っていない。）
+（実行する場所は問わない。出力は Debian 13 の例。`nf-config` が見つからなければ netCDF-Fortran が入っていないか、パスが通っていない。）
+
 
 ### 小さなプログラムで確かめる
 
@@ -147,7 +149,8 @@ nf-config --flibs     # リンク時: -L/usr/lib/x86_64-linux-gnu -lnetcdff -Wl,
 手順の例。
 
 ```bash
-mkdir -p ~/nctest && cd ~/nctest
+mkdir -p ~/nctest   # 適当な作業ディレクトリ
+cd ~/nctest
 cp ~/mricom_user_pack/doc/fortran/nctest.f90 .
 gfortran $(nf-config --fflags) nctest.f90 $(nf-config --flibs) -o nctest
 ./nctest          # ok:  4.9.3 of ...（netCDF C ライブラリの版）
@@ -166,11 +169,12 @@ ncdump test.nc    # data = 1, 2, 3 ;
 ここで調べたオプションを、MXE は `setting/macros.make`（上記「MXE ツール用ビルド設定」）、
 MRI.COM は `configure.in`（下の「MRI.COM で netCDF を使う」）に書く。
 
+
 ### MRI.COM で netCDF を使う
 
-MRI.COMでnetCDF出力を使うには、`configure.in`に netCDF-Fortran の指定を次の 3 つで与える
-（`README_Options.md` の `NETCDF` の項）。
-実際の使い方は [Step 3d](03-rectangle.md) で説明する。
+MRI.COMでnetCDF出力を使うには、`configure.in`に netCDF-Fortran の指定を次の 3 つで与える。
+`nf-config --fflags`の内容を`NETCDF_INCLUDES`に設定することに注意。
+実際の使い方は [Step 3d](03-rectangle.md) を、詳細は`README_Options.md` の `NETCDF` の項を参照せよ。
 
 | 項目 | 内容 | `nf-config` との対応 |
 |---|---|---|
@@ -179,10 +183,10 @@ MRI.COMでnetCDF出力を使うには、`configure.in`に netCDF-Fortran の指�
 | `NETCDF_LDFLAGS` | ライブラリの場所とリンク指定（例: `-L/usr/local/lib -lnetcdff`） | `nf-config --flibs` |
 
 * `MACHINE=linux86-gfortran` では既定値が入るので、netCDF-Fortran が標準の場所にあれば**書かなくてよい**。
-  Debian 13 では次が使われ、[Step 3d](03-rectangle.md) の netCDF 出力が動いた（コンパイルのログ先頭に表示される）。
+  例えば Debian 13 では次のようになる（コンパイルのログ先頭に表示される）。
   ```
   NETCDF_FFLAGS    = -mcmodel=large -ffree-line-length-none -fconvert=big-endian -O3
-  NETCDF_INCLUDES  = -I/usr/include -I/usr/include
+  NETCDF_INCLUDES  = -I/usr/include
   NETCDF_LDFLAGS   = -L/usr/lib -lnetcdff -fPIE -pie -Wl,-z,relro -Wl,-z,now
   ```
   <!-- TODO: この既定値がどう決まるかを記載。 -->
@@ -192,7 +196,7 @@ MRI.COMでnetCDF出力を使うには、`configure.in`に netCDF-Fortran の指�
   NETCDF_INCLUDES="$(nf-config --fflags)"
   NETCDF_LDFLAGS="$(nf-config --flibs)"
   ```
-  この上書きがログに反映され、コンパイルが通ることは確かめてある（実行は未確認）。
+  反映されていることをコンパイルのログで確認する。
 
 
 
