@@ -314,7 +314,7 @@ Namelistファイルの基本
 
 | パラメータ | 型 | 単位 | デフォルト | 説明 |
 |---|---|---|---|---|
-| smagor_scale | 実数 | - | README に記載なし | スケーリング係数 |
+| smagor_scale | 実数 | 無次元 | README に記載なし | 粘性係数決定用のスケーリング係数 |
 | smagor_diff_ratio | 実数 | - | README に記載なし | 粘性係数から拡散係数を決める比（`SMAGHD` のとき有効） |
 | l_smagor_nonzero_bg | logical | - | .false. | `.true.` で Smagorinsky 粘性に背景値を足す。背景値は `&nml_baroclinic_visc_horz` で与える |
 
@@ -328,6 +328,10 @@ Namelistファイルの基本
     止まらなければ標準出力の粘性設定の表示を確認し、短い試験 run で単独設定と比べる。
     確認できたらここに結果を書く。
 
+**係数の目安**
+- smagor_scale - Laplacian では 3.0 - 4.0, Bihamonic では 2.0 - 3.0が良いらしいが（Griffies and Hallberg, 2000）、モデルの解像度等に合わせてチューニングをする。(clinic_hvis.F90のコメント)
+
+
 ### `&nml_hvisc_add` (clinic_hvis.F90)
 
 | パラメータ | 型 | 単位 | デフォルト | 説明 |
@@ -336,7 +340,7 @@ Namelistファイルの基本
 | file_hvisc_harmonic | character | - | - | 追加するラプラシアン粘性の 2 次元分布 [cm²/s]（T 点） |
 
 **依存・注意点**:
-- 重調和型を全域にかけ、西岸や赤道付近など一部だけラプラシアンを足す、といった使い方を想定しているように見える。
+- 重調和型を全域にかけ、西岸や赤道付近など一部だけラプラシアンを足す、といった使い方を想定している。
   ただし、どのオプションとの組み合わせが前提かは README に記載なし（TODO）。
 
 
