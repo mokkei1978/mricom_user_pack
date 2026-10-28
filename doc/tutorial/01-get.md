@@ -77,6 +77,7 @@ Step 4 で Step 3 の結果と比べるときは、この版の違いを念頭�
 ~/mricom                        MRICOM（ブランチ 5_4）
 ~/mxe                           MXE
 ~/rect                          MRICOM-rect
+~/myrect                        自分の実験パッケージ（Step 4 で MXE を clone して作る）
 ~/mricom_user_pack              本リポジトリ（mricom_user_pack）
 ~/mxe-docker                    mxe-docker（任意）
 <外部ディスク>/rectangle_data   矩形海の入力データ

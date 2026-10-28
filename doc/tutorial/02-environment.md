@@ -45,6 +45,9 @@ sh make_macros.make.sh
 詳細は `setting/README-MXE.md`, サンプルは `setting/machine/`を参照する。
 
 * netCDF が使える場合(下記)は FFLAGS に `-DMXE_NETCDF` を加え、`INCLUDES` と `LDFLAGS` に netCDF-Fortran の指定を加える。
+* Debian + gfortran では FFLAGS に `-DMXE_DOCKER` を加える（Docker を使わない場合も）。
+  無いと、標準入力で namelist を渡すツールが何も表示せずに止まることがある
+  （`lib/libmxe_system.F90` の注記: stdin の `rewind(5)` から返ってこなくなるのを回避。[Step 4b](04-own-toy.md) で経験）。
 
 | サンプル | 環境 |
 |---|---|

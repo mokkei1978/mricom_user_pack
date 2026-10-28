@@ -17,7 +17,7 @@ MRI.COM実験（設定・namelist・入力データ・実行・解析）を手�
 
 ## 各自の環境
 
-doc では展開先を `~/mricom`, `~/mxe`, `~/rect`（MRICOM-rect）と書く（`doc/tutorial/01-get.md`）。
+doc では展開先を `~/mricom`, `~/mxe`, `~/rect`（MRICOM-rect）、`~/myrect`（Step 4 で MXE から作る自分の実験パッケージ）と書く（`doc/tutorial/01-get.md`）。
 実際の場所はユーザーごとに異なるので、`CLAUDE.local.md` に書かれていればそれに読み替える。
 書かれていなければ推測せずユーザーに聞き、`CLAUDE.local.md` への記入を提案する。
 

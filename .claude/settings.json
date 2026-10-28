@@ -30,7 +30,18 @@
       "Read(//home/sakamoto/myrect/exp/modsrc/**)",
       "Read(//home/sakamoto/sub/myrect/exp/src/**)",
       "Read(//home/sakamoto/sub/myrect/exp/src-*/**)",
-      "Read(//home/sakamoto/sub/myrect/exp/modsrc/**)"
+      "Read(//home/sakamoto/sub/myrect/exp/modsrc/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/src/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/samples/*/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/samples/NAMELIST.OGCM.MONITOR)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/tools/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/bin/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/ChangeLog*)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/docs/ChangeLog*)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/MRICOM/Doxyfile)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/src/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/src-*/**)",
+      "Read(//home/sakamoto/sandbox/myrect/exp/modsrc/**)"
     ]
   }
 }
