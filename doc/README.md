@@ -30,7 +30,7 @@ namelist 作成支援もこの一部として、各ステップからリファ�
 
 | ステップ | 内容 |
 |---|---|
-| [0. MRI.COM とは](tutorial/00-about.md) | 概要、公開マニュアル（技術報告第87号）と README 類、MRI.COM / MXE / rectangle の関係 |
+| [0. MRI.COM とは](tutorial/00-about.md) | 概要、公開マニュアル（技術報告第87号）と README 類、MRI.COM / MXE / rectangle の関係、実行に使うツール |
 | [1. 取得](tutorial/01-get.md) | MRI.COM・MXE・MRICOM-rect（要申請）と入力データの取得 |
 | [2. 実行環境](tutorial/02-environment.md) | コンパイラ・MPI・`macros.make`・MXE の Fortran テスト・Python 環境 |
 | [3. 矩形海を動かす](tutorial/03-rectangle.md) | MRICOM-rect をそのまま実行 → 結果を描画 → 設定を1つずつ変える・継続run |
