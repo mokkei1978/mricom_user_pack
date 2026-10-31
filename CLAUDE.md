@@ -30,9 +30,9 @@ MRI.COM 習熟のためのチュートリアル（`doc/tutorial/`, Step 0〜5）
 - `doc/tutorial/rect_workflow.md` — MRICOM-rect の実験手順（exp/run/、Step 3 の詳細版）
 - `doc/mricom-readme-map.md` — 目的別の README 参照先
 - `doc/input-data.md` — 入力データの形式・単位
-- `doc/namelist-reference.md`, `doc/namelist-examples/` — namelist の解説・実例
-- `doc/configure.in-example/` — configure.in のビルド設定例（Step 2 から参照）
-- `doc/mxe-sample/` — MXE の macros.make の例（Step 2 から参照）
+- `doc/namelist-reference.md` — namelist の解説
+- `doc/sample_ogcm/` — MRI.COM の設定例: configure.in のビルド設定（Step 2 から参照）、モデル設定の雛形と namelist の実例（Step 4 から参照）
+- `doc/sample_mxe/` — MXE の設定例: macros.make（Step 2 から参照）
 - `doc/manual/` — 公開マニュアル（技術報告第87号）PDF の取得スクリプト `get_manual.sh`（Step 1）。取得済みなら `tech_rep_mri-v5.pdf` を読んでよい
 - `doc/fortran/` — 環境確認用 Fortran テストプログラム（netCDF の nctest.f90。Step 2 から参照）
 

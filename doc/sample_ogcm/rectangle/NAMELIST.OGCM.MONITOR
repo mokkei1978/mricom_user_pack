@@ -1,0 +1,52 @@
+! MRI.COM 5_4 用の NAMELIST.OGCM.MONITOR: ヒストリー出力（README_Monitor.md）。
+! 出力ごとに &nml_history を繰り返す。
+!   name          出力する量（README_Monitor.md の "Available outputs"）
+!   file_base     出力ファイル名（.ctl と .1901 が付く。../hst_day/ = exp/hst_day/）
+!   interval_step 出力間隔。正ならステップ数、0 以下はカレンダー（0: 1 年, -1: 1 か月, -2: 1 日, -3: 1 時間）
+!   suffix        "year": ファイルを年ごとに分ける（.1901）
+!   sampling は省略（既定は間隔内の平均 "mean"）
+
+! ---- 日平均（interval_step = -2）----
+
+&nml_history
+  name                          = 'temperature',
+  file_base                     = '../hst_day/hs_t',
+  interval_step                 = -2,
+  suffix                        = "year",
+/
+&nml_history
+  name                          = 'salinity',
+  file_base                     = '../hst_day/hs_s',
+  interval_step                 = -2,
+  suffix                        = "year",
+/
+&nml_history
+  name                          = 'x velocity',
+  file_base                     = '../hst_day/hs_u',
+  interval_step                 = -2,
+  suffix                        = "year",
+/
+&nml_history
+  name                          = 'y velocity',
+  file_base                     = '../hst_day/hs_v',
+  interval_step                 = -2,
+  suffix                        = "year",
+/
+&nml_history
+  name                          = 'sea surface height',
+  file_base                     = '../hst_day/hs_ssh',
+  interval_step                 = -2,
+  suffix                        = "year",
+/
+&nml_history
+  name                          = 'x transport',
+  file_base                     = '../hst_day/hs_sfc_um',
+  interval_step                 = -2,
+  suffix                        = "year",
+/
+&nml_history
+  name                          = 'y transport',
+  file_base                     = '../hst_day/hs_sfc_vm',
+  interval_step                 = -2,
+  suffix                        = "year",
+/

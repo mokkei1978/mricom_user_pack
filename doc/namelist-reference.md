@@ -342,15 +342,16 @@ Namelistファイルの基本
 実例（動作実績のあるnamelist本体）
 --------
 
-用途別に `namelist-examples/` 以下へディレクトリを分けて置く（Markdownに埋め込まず、
+用途別に `sample_ogcm/` 以下へディレクトリを分けて置く（Markdownに埋め込まず、
 そのまま `NAMELIST.OGCM` として使えるファイルにしてある）。AIに新しいnamelistを
 作らせる際は、まず該当する実例ファイルを読ませて「型」として使うとよい。
 
-* [namelist-examples/rectangle/NAMELIST.OGCM](namelist-examples/rectangle/NAMELIST.OGCM) -
-  矩形海テストケース（`anl/rectangle/` に対応）の最小構成。一部の付随ファイル・
-  繰り返しグループは省略。
+* [sample_ogcm/rectangle/NAMELIST.OGCM](sample_ogcm/rectangle/NAMELIST.OGCM) -
+  矩形海テストケース（`anl/rectangle/` に対応）。Step 3a の MRICOM-rect と同じ設定で、
+  初期値は水温・塩分だけを読む。各パラメータに説明コメント付き。
+  ヒストリー出力の `NAMELIST.OGCM.MONITOR` もある。[Step 4](tutorial/04-own-toy.md) で使う。
 
-新しい実例を追加する手順は [namelist-examples/README.md](namelist-examples/README.md) を参照。
+新しい実例を追加する手順は [sample_ogcm/README.md](sample_ogcm/README.md) を参照。
 
 
 よくある落とし穴チェックリスト
@@ -386,7 +387,7 @@ AIが生成したnamelistをレビューする際、最低限これだけは確�
 TODO（このファイルの育て方）:
 1. （済）対象バージョンを冒頭に明記する
 2. 「未」になっているグループから、実際に使うものだけ本体README_Namelist.mdを見て埋めていく
-3. 実際に流した実験のnamelistを `namelist-examples/` 以下に用途別（全球/領域/ALE2層など）で
-   ディレクトリを追加していく（`namelist-examples/README.md` にも一覧を追記する）
+3. 実際に流した実験のnamelistを `sample_ogcm/` 以下に用途別（全球/領域/ALE2層など）で
+   ディレクトリを追加していく（`sample_ogcm/README.md` にも一覧を追記する）
 4. （済）リポジトリ直下の CLAUDE.md から doc/README.md 経由でこのファイルを案内している
 -->

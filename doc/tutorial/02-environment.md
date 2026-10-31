@@ -51,7 +51,7 @@ sh make_macros.make.sh
 
 | サンプル | 環境 |
 |---|---|
-| [macros.make-gfortran-netcdf](../mxe-sample/macros.make-gfortran-netcdf) | gfortran + netCDF |
+| [macros.make-gfortran-netcdf](../sample_mxe/macros.make-gfortran-netcdf) | gfortran + netCDF |
 
 ### MXE ライブラリ
 
@@ -109,12 +109,12 @@ END
 * OpenMP（`-fopenmp`）はここでは説明しない（MPI 並列のみ）。OpenMP による高速化は別のチュートリアルで扱う予定。
   `-fopenmp` の有無で Step 3a のリスタート出力は変わらない（ビット一致を確認）。
 
-ビルド設定の例は [../configure.in-example/](../configure.in-example/) にある（`configure.in` の末尾に加える部分だけ）。
+ビルド設定の例は [../sample_ogcm/](../sample_ogcm/README.md) の `configure.in-<コンパイラ>` にある（`configure.in` の末尾に加える部分だけ）。
 
 | サンプル | 環境 |
 |---|---|
-| [configure.in-gfortran-openmpi-noomp](../configure.in-example/configure.in-gfortran-openmpi-noomp) | gfortran + Open MPI（上の設定と同じ） |
-| [configure.in-gfortran-openmpi](../configure.in-example/configure.in-gfortran-openmpi) | gfortran + Open MPI + OpenMP（上の設定に `-fopenmp` を加えたもの） |
+| [configure.in-gfortran-openmpi-noomp](../sample_ogcm/configure.in-gfortran-openmpi-noomp) | gfortran + Open MPI（上の設定と同じ） |
+| [configure.in-gfortran-openmpi](../sample_ogcm/configure.in-gfortran-openmpi) | gfortran + Open MPI + OpenMP（上の設定に `-fopenmp` を加えたもの） |
 
 
 

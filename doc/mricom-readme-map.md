@@ -31,7 +31,7 @@ AIはまずここで参照先を決め、該当READMEの該当節だけを読む
 | 必須グループ（格子・時間・初期状態・混合係数など） | `README_Namelist.md` | "Required namelists" 節 |
 | オプション依存のグループ | `README_Namelist.md` | "Optional namelists" 節の `#### <OPTION> chosen` |
 | 個々のグループの変数・単位・既定値 | `README_Namelist.md` | `grep -n '^&nml_<name>'`（Contents と本文の2か所にヒットする。本文側を読む） |
-| 本リポジトリでの要約・実例・レビュー観点 | [namelist-reference.md](namelist-reference.md), [namelist-examples/](namelist-examples/README.md) | |
+| 本リポジトリでの要約・実例・レビュー観点 | [namelist-reference.md](namelist-reference.md), [sample_ogcm/](sample_ogcm/README.md) | |
 
 ### 入力データ
 
@@ -67,7 +67,7 @@ AIはまずここで参照先を決め、該当READMEの該当節だけを読む
 READMEに答えが無いとき
 --------
 
-1. このドキュメント集（特に各ファイルの「落とし穴」）と `namelist-examples/` を確認する。
+1. このドキュメント集（特に各ファイルの「落とし穴」）と `sample_ogcm/` を確認する。
 2. MRICOM-rect の `exp/run/option/<MODE>/`（オプション別の設定例）や `exp/run/namelist/*.in` を確認する。
 3. それでも無ければ、AIは推測で埋めずに「READMEに記載なし」と報告する。
    人間がモデル開発者に確認し、分かったことをこのドキュメント集に追記する。

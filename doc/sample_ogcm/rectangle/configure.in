@@ -1,0 +1,19 @@
+#!/bin/sh
+# MRI.COM モデル設定: 矩形海（MRICOM-rect の標準設定と同じ。62×52×10、MPI 2×2 分割）
+# ビルド設定（configure.in-gfortran-openmpi* など）を末尾に加えて使う。
+# 内容は MRI.COM の README_First.md 3.1 節を参照。
+
+# OPTIONS（各オプションの説明は MRI.COM の docs/README_Options.md）
+#   * SPHERICAL  - 球面座標（緯度経度格子）で離散化する
+#   * QUICKADVEC - トレーサー移流に QUICK スキームを使う（水平・鉛直とも）
+#   * PARALLEL   - MPI で並列計算する。分割数は下の NPARTX, NPARTY
+#   * MPI2       - MPI-2 以降の機能（MPI-IO を含む）を使う。
+#                  コンパイルに失敗する場合は外す。
+
+OPTIONS="SPHERICAL QUICKADVEC PARALLEL MPI2"
+IMUT=62
+JMUT=52
+KM=10
+
+NPARTX=2
+NPARTY=2

@@ -101,6 +101,7 @@ MRI.COM は計算領域を東西・南北に分割し、各領域を別のプロ
   `Makefile` を作り、`make` でビルドする（`README_First.md` 3.2 節）。
 * MXE: コンパイラの設定を `setting/macros.make` に書き、各ディレクトリの `Makefile` がそれを読む。
 * 設定を変えたら再コンパイルが必要。MRI.COM ではオプションや格子数を変えるたびに作り直す。
+* -j オプションで並列コンパイルが可能。
 
 参考 (コンパクトな入門サイトがあれば教えてください):
 * [GNU make マニュアル](https://www.gnu.org/software/make/manual/make.html)（英語）— 第 2 章 "An Introduction to Makefiles" が入門

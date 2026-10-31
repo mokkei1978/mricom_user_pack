@@ -211,7 +211,7 @@ done
 
 `run.conf`や`NAMELIST-*.in`を変えた場合は、`run_pre.sh`の再実行が必要。
 namelist を編集するときは [../namelist-reference.md](../namelist-reference.md) と
-[../namelist-examples/rectangle/](../namelist-examples/rectangle/README.md) を参照する。
+[../sample_ogcm/rectangle/](../sample_ogcm/rectangle/README.md) を参照する。
 
 
 ### 例: 水平粘性を 2 倍にする

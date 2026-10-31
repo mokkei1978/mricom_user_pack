@@ -1,0 +1,227 @@
+! MRI.COM 5_4 用の NAMELIST.OGCM: 矩形海（62×52×10）。MRICOM-rect の標準設定（Step 3a）と同じ。
+! 各パラメータの説明は MRI.COM の docs/README_Namelist.md（リスタートは README_Restart.md）。
+! 入力ファイルのパスは exp/run/ からの相対パス（../data/ = exp/data/）。
+! 単位は cgs（cm, s）。
+
+! ---- 格子・地形 ----
+&nml_horz_grid
+  lon_west_end_of_core          = 0.d0,           ! 西端のトレーサー点の経度 [deg]
+  lat_south_end_of_core         = 10.d0,          ! 南端のトレーサー点の緯度 [deg]
+  dx_const_deg                  = 1.0d0,          ! 東西格子間隔 [deg]（一定）
+  dy_const_deg                  = 1.0d0,          ! 南北格子間隔 [deg]（一定）
+/
+&nml_vert_grid
+  file_dz_cm                    = "../data/dz_cm.d",   ! 鉛直層厚 [cm] のファイル（Step 4b (1)）
+/
+&nml_topo
+  file_topo                     = '../data/topo.d',    ! 海底地形のファイル（Step 4b (2)）
+/
+
+! ---- 時間 ----
+&nml_time_step
+  dt_sec                        = 3600.0d0,       ! 時間ステップ [s]（運動方程式とトレーサー）
+  alpha_bryan_1984              = 1.0d0,          ! Bryan (1984) の alpha（1 = 加速なし）
+  l_monitor_time                = .true.,         ! 時間ステップを標準出力に表示する
+/
+&nml_exp_start                                    ! 実験全体の開始日
+  year                          = 1901,
+  month                         = 1,
+  day                           = 1,
+/
+&nml_run_ini                                      ! この run の開始日時（継続 run では前の run の終了日時）
+  year                          = 1901,
+  month                         = 1,
+  day                           = 1,
+  hour                          = 0,
+  minute                        = 0,
+/
+&nml_run_period
+  nstep_total                   = 240,            ! この run のステップ数（240 × 3600 s = 10 日）
+/
+
+! ---- 初期値とリスタート出力の有無（README_Restart.md）----
+&nml_run_ini_state
+  l_rst_in                      = .false.,        ! リスタートを読まない（静止状態から始める）。下の個別指定で上書きされる
+  l_rst_LFAM3_in                = .false.,        ! 1 ステップ前の値のリスタートを読まない
+  l_rst_out                     = .true.,         ! 終了時にリスタートを書く
+  l_rst_LFAM3_out               = .true.,         ! 1 ステップ前の値のリスタートも書く
+/
+&nml_tracer_run
+  l_rst_tracer_in               = .true.,         ! 水温・塩分はリスタート（rs_t, rs_s）から読む
+/
+&nml_vmix_run
+  l_rst_vmix_out                = .true.,         ! 鉛直混合係数のリスタートも書く（README の記述と違い、既定は .false.）
+/
+
+! ---- 順圧（外部）モード ----
+&nml_barotropic_model
+  dt_barotropic_sec             = 36.0d0,         ! 順圧モードの時間ステップ [s]
+/
+&nml_barotropic
+  l_zul_time_integ_AB2e         = .true.,         ! 順圧の強制項の時間積分を修正 2 次 Adams-Bashforth にする
+/
+&nml_barotropic_diff
+  ssh_diff_cm2ps                = 5.d5,           ! SSH の拡散係数 [cm^2/s]（0 なら拡散しない）
+/
+
+! ---- 水平粘性・拡散 ----
+&nml_baroclinic_visc_horz
+  visc_horz_cm2ps               = 2.5d8,          ! 水平粘性係数 [cm^2/s]（ラプラシアン型）
+/
+&nml_tracer_diff_horz
+  diff_horz_cm2ps               = 1.0d7,          ! 水平拡散係数 [cm^2/s]（ラプラシアン型）
+/
+
+! ---- トレーサー: 変数ごとに &nml_tracer_data を繰り返す ----
+&nml_tracer_data
+  name                          = "Potential Temperature",  ! 大文字小文字も区別される
+  adv_scheme%name               = "quick",        ! 移流スキーム（configure.in の QUICKADVEC）
+  adv_scheme_predictor%name     = "quick",        ! LFAM3 の予測子ステップの移流スキーム
+  restore_conf%l_surf_restore   = .false.,        ! 海面での復元をしない
+  restore_conf%l_body_restore   = .false.,        ! 内部での復元をしない
+/
+&nml_tracer_data
+  name                          = "Salinity",
+  adv_scheme%name               = "quick",
+  adv_scheme_predictor%name     = "quick",
+  restore_conf%l_surf_restore   = .false.,
+  restore_conf%l_body_restore   = .false.,
+/
+
+! ---- 海面強制: 変数ごとに &nml_force_data を繰り返す ----
+! 風応力 [dyn/cm^2]（TAUBULK オプションなし）。東西成分は 2 次元分布、南北成分は一様値 0。
+&nml_force_data
+  name                          = 'U-wind',       ! 東西風応力
+  txyu                          = 'u',            ! データを置く格子点（u 点）
+  file_data                     = '../data/wind_x.gd',     ! Step 4b (3)。real(4)
+  file_data_grid                = '../data/wind_grid.d',   ! データの格子（linterp = .true. のとき必要）
+  imfrc                         = 62,             ! データの東西格子数
+  jmfrc                         = 52,             ! データの南北格子数
+  num_elm                       = 1,              ! データの要素数
+  interval                      = -999,           ! データの時間間隔 [s]。-999 = 時間変化しない
+  ifstart                       = 1901,1,11,0,0,0,         ! 最初のレコードの日時
+  num_data_max                  = 1,              ! ファイル中のレコード数
+  linterp                       = .false.,        ! 水平補間しない（モデル格子と同じ）
+  ilinear                       = 1,              ! 補間方法（1: 線形）
+  iverbose                      = 1,              ! 1: 標準出力に詳しく出す
+/
+&nml_force_data
+  name                          = 'V-wind',       ! 南北風応力
+  txyu                          = 'u',
+  file_data                     = '../data/zero.d',        ! Step 4b (3)。0 が 1 個（real(8)）
+  imfrc                         = 1,
+  jmfrc                         = 1,
+  num_elm                       = 1,
+  interval                      = -999,
+  ifstart                       = 1901,1,11,0,0,0,
+  num_data_max                  = 1,
+  luniform                      = .true.,         ! 水平に一様な値
+  luniform_v                    = .true.,         ! 鉛直に一様な値
+  ldouble                       = .true.,         ! データが real(8)
+  iverbose                      = 1,
+/
+
+! ---- 標準出力・MPI・診断 ----
+&nml_stdout
+  l_stdout2file                 = .true.,         ! 標準出力をファイルに書く
+  file_base_stdout              = '19010101',     ! ファイル名は OGCM-19010101-stdout.<MPI プロセス番号>
+  l_debug                       = .true.,         ! デバッグモード
+/
+&nml_mpi
+  l_serial_sum_mpi              = .true.,         ! MPI プロセスをまたぐ和を順番に取る（再実行で結果が変わらない）
+  l_strict_run                  = .true.,         ! 結果が MPI 分割によらない（計算は遅くなる）
+/
+&nml_budget_oc
+  nstep_budget_interval         = 24,             ! 淡水収支を出力する間隔（ステップ数）
+/
+
+! ---- リスタート（README_Restart.md）----
+! 変数ごとに &nml_restart を繰り返す。入力は file_base.<開始日時>、出力は file_base.<出力日時>。
+! interval_step はリスタートを書く間隔（ステップ数。ここでは積分の最後 = nstep_total）。
+! read_method, write_method = 'root': 1 つのファイルを root プロセスで読み書きする
+! （MPI2 オプションありのときの既定は 'mpiio'）。
+
+&nml_restart
+  name                          = 'Potential temperature',
+  file_base                     = '../restart/rs_t',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Salinity',
+  file_base                     = '../restart/rs_s',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'X Velocity',
+  file_base                     = '../restart/rs_u',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Y Velocity',
+  file_base                     = '../restart/rs_v',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Sea Surface Height',
+  file_base                     = '../restart/rs_ssh',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'X Transport',
+  file_base                     = '../restart/rs_uml',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Y Transport',
+  file_base                     = '../restart/rs_vml',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'X diffusion flux for ssh',
+  file_base                     = '../restart/rs_ssh_dflx_x',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Y diffusion flux for ssh',
+  file_base                     = '../restart/rs_ssh_dflx_y',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Global Mean Density and Pressure',
+  file_base                     = '../restart/rs_density',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Vertical Tracer Diffusivity',
+  file_base                     = '../restart/rs_vmix_avd',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/
+&nml_restart
+  name                          = 'Vertical Momentum Diffusivity',
+  file_base                     = '../restart/rs_vmix_avm',
+  interval_step                 = 240,
+  read_method                   = 'root',
+  write_method                  = 'root',
+/

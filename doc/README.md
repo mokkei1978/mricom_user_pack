@@ -48,9 +48,8 @@ namelist 作成支援もこの一部として、各ステップからリファ�
 | [mricom-readme-map.md](mricom-readme-map.md) | 「何を知りたいか → MRI.COMのどのREADMEの何節を見るか」の対応表 | 常に。AIが一次情報を探す起点 |
 | [input-data.md](input-data.md) | 入力データ（格子・地形・強制・レストア）のファイル形式と単位 | 前処理（`prep/`）で入力ファイルを作るとき |
 | [namelist-reference.md](namelist-reference.md) | `NAMELIST.OGCM` の主要グループの解説とレビュー用チェックリスト | namelistを作る／レビューするとき |
-| [namelist-examples/](namelist-examples/README.md) | 動作実績のあるnamelistの実例 | namelistを作るときの「型」として |
-| [configure.in-example/](configure.in-example/) | `configure.in` のビルド設定（コンパイラ・MPI）の例 | 新しい計算機でコンパイル設定を書くとき |
-| [mxe-sample/](mxe-sample/) | MXE の `setting/macros.make` の例（解説付き） | MXE ツールのコンパイル設定を書くとき |
+| [sample_ogcm/](sample_ogcm/README.md) | MRI.COM の設定例: `configure.in`（ビルド設定・モデル設定）と動作実績のある namelist の実例 | 新しい計算機でコンパイル設定を書くとき、`configure.in` や namelist を作るときの「型」として |
+| [sample_mxe/](sample_mxe/) | MXE の設定例: `setting/macros.make`（解説付き） | MXE ツールのコンパイル設定を書くとき |
 | [manual/](manual/) | 公開マニュアル（技術報告第87号）の PDF を取得するスクリプト `get_manual.sh`（PDF は git 管理外） | 物理・数値スキームを調べるとき（Step 1 で取得） |
 | [fortran/](fortran/) | 環境確認用の Fortran テストプログラム（netCDF-Fortran の `nctest.f90`） | Step 2 でライブラリが使えるか確かめるとき |
 
@@ -67,7 +66,7 @@ doc/README.md と doc/tutorial/rect_workflow.md を読んで、矩形海実験�
 ```
 
 ```
-doc/namelist-reference.md と doc/namelist-examples/rectangle/NAMELIST.OGCM を型にして、
+doc/namelist-reference.md と doc/sample_ogcm/rectangle/NAMELIST.OGCM を型にして、
 HFLUX オプションを加えた実験の NAMELIST.OGCM を作って。
 不明なパラメータは ~/mricom/docs/README_Namelist.md で確認し、
 そこにも書かれていなければ推測せず TODO として残すこと。
@@ -87,6 +86,6 @@ AIが作ったnamelistや設定は、**投入前に必ず人間がレビュー�
     （例: 継続runでリスタート読み込みフラグを戻し忘れても `EXP succeed.` になる）。
   * 「トラブルシューティング」— エラーメッセージへの対応。「症状（メッセージ）→ 原因 → 対処」の形で書く。
     該当する記述が出てきたら、その時点で節を作る。
-* 実際に流した実験のnamelistは `namelist-examples/` に用途別に追加する。
+* 実際に流した実験のnamelistは `sample_ogcm/` に用途別に追加する。
 * 新しいファイルを足したら、この目次とリポジトリ直下の `CLAUDE.md` を更新する。
 * 未確認の記述には `<!-- TODO: 要確認 -->` を付け、確認できたら外す。
